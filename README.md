@@ -9,9 +9,13 @@ Currently this project is in it's early infancy and as such is not useable. All 
 ### Dependencies
 
 To compile OpenCGE you will need the following dependencies installed:
-glfw
+```
+glfw (Simplifies getting an OpenGL context and handles basic input)
+```
 
 In the future I plan on using the following dependencies:
+```
 glm (for decent OpenGL matrix support)
 assimp (for loading various 3D model formats)
 OpenAL (for sound)
+```

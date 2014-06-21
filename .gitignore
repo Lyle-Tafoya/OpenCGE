@@ -1,0 +1,10 @@
+# Eclipse project files
+.cproject
+.project
+
+# Binary folders
+Debug/
+Release/
+
+# Vim files
+*.swp

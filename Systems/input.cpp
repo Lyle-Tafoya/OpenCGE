@@ -3,12 +3,12 @@
 
 namespace OpenCGE
 {
-  void input::Init()
+  void Input::Init()
   {
 
   }
 
-  void input::Update(float delta)
+  void Input::Update(float delta)
   {
     glfwPollEvents();
   }

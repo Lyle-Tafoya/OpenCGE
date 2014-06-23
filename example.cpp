@@ -1,17 +1,20 @@
 #include "Engine/system.h"
 #include "Systems/graphics.h"
 #include "Systems/input.h"
+
 using namespace OpenCGE;
 
 int main()
 {
-  graphics graphicsSystem(1280, 800, "OpenCGE Test");
-  input inputSystem();
-  system::Initialize();
+  // Create all the systems that will be used
+  Graphics graphicsSystem(800, 600, "Hello World"); // OpenGL 3.0+
+  //GraphicsLegacy graphicsSystem(800, 600, "Hello World"); // pre-OpenGL 3.0
+  Input inputSystem();
+
+  // Initialize all the systems that have been created already
+  System::Initialize();
 
   float delta = 0.0f;
   while(true)
-  {
-    system::UpdateAll(delta);
-  }
+    System::UpdateAll(delta);
 }

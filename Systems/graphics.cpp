@@ -3,13 +3,18 @@
 
 namespace OpenCGE
 {
-  graphics::graphics(size_t w, size_t h, string winTitle)
+  Graphics::Graphics(size_t w, size_t h, string winTitle)
     : pWindow(nullptr), title(winTitle), width(w), height(h) {}
 
-  // Initialize our graphics system
-  void graphics::Init()
+  Graphics::~Graphics()
   {
-    // Use GLFW to create a window
+    glfwTerminate();
+  }
+
+  // Initialize our graphics system
+  void Graphics::Init()
+  {
+    // Initialize window hints to default
     glfwInit();
 
     // Set the OpenGL version
@@ -22,7 +27,7 @@ namespace OpenCGE
     glewExperimental=true;
   }
 
-  void graphics::Update(float delta)
+  void Graphics::Update(float delta)
   {
     glfwSwapBuffers(pWindow);
   }

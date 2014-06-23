@@ -2,22 +2,22 @@
 
 namespace OpenCGE
 {
-  vector<system *> system::systems;
+  vector<System *> System::systems;
 
-  system::system()
+  System::System()
   {
     systems.push_back(this);
   }
 
   // TODO This should take extra parameters to initialize
-  void system::Initialize()
+  void System::Initialize()
   {
     for(auto &sys : systems)
       sys->Init();
   }
 
   // Update all the systems
-  void system::UpdateAll(float delta)
+  void System::UpdateAll(float delta)
   {
     for(auto &sys : systems)
       sys->Update(delta);

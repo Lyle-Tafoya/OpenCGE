@@ -15,18 +15,20 @@
 
 namespace OpenCGE
 {
-  class entity
+  class Entity
   {
+  private:
+    vector<Component *> components[];
+
   protected:
     size_t id;
-    vector<component *> components;
 
   public:
-    entity();
+    Entity();
 
   // Static fields
   private:
-    static vector<entity *> entities;
+    static vector<Entity *> entities;
     static void Delete(size_t id);
     static void New(size_t type);
   };

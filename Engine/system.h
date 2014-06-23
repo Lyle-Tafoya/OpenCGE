@@ -14,19 +14,19 @@
 
 namespace OpenCGE
 {
-  class system
+  class System
   {
     virtual void Init() = 0;
     virtual void Update(float delta) = 0;
 
   public:
-    system();
-    virtual ~system() {};
+    System();
+    virtual ~System() {};
 
     // Static members
     static void Initialize();
     static void UpdateAll(float delta);
-    static vector<system *> systems;
+    static vector<System *> systems;
   };
 }
 

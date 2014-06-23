@@ -9,12 +9,13 @@
 
 namespace OpenCGE
 {
-  class input : public system
+  // Detects input and passes it along to controller components
+  class Input : public System
   {
     void Init();
     void Update(float delta);
 
-    vector<controller *> controllers;
+    vector<Controller *> controllers;
   };
 }
 

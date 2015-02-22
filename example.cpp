@@ -12,9 +12,8 @@ int main()
   Input inputSystem();
 
   // Initialize all the systems that have been created already
-  System::Initialize();
+  System::InitAll();
 
-  float delta = 0.0f;
   while(true)
-    System::UpdateAll(delta);
+    System::UpdateAll();
 }

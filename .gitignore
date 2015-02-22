@@ -1,15 +1,15 @@
 # Eclipse project files
 .cproject
 .project
+.settings
 
 # Binary folders
 Debug/
 Release/
+Default/
 
 # Vim files
 *.swp
 
 # Compiler files and related
 *.o
-Makefile
-makefile

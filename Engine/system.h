@@ -9,6 +9,10 @@
 
 #include <vector>
   using std::vector;
+#include <chrono>
+  using std::chrono::high_resolution_clock;
+  using std::chrono::duration;
+  using std::chrono::duration_cast;
 
 #include "message.h"
 
@@ -23,10 +27,13 @@ namespace OpenCGE
     System();
     virtual ~System() {};
 
-    // Static members
-    static void Initialize();
-    static void UpdateAll(float delta);
+  // Static members
+  public:
+    static void InitAll();
+    static void UpdateAll();
     static vector<System *> systems;
+  private:
+    static high_resolution_clock::time_point lastTime;
   };
 }
 

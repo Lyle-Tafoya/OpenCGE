@@ -10,13 +10,15 @@ namespace OpenCGE
 {
   class Component
   {
-    size_t id;
-
   public:
     Component();
-    void Send(message const& msg);
-    virtual void Recv(message const& msg) = 0;
-    virtual ~Component();
+    void SendMsg(Message const& msg);
+    void RecvMsg(Message const& msg);
+    virtual ~Component() {};
+
+  private:
+    size_t id;
+    void *(*callbacks)(Message const& msg);
   };
 }
 #endif

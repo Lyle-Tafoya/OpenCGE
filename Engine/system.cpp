@@ -4,18 +4,20 @@ namespace OpenCGE
 {
   vector<System *> System::systems;
   high_resolution_clock::time_point System::lastTime;
+  System::state System::running;
 
   System::System()
   {
     systems.push_back(this);
   }
 
-  // TODO This should take extra parameters to initialize
+  // Initialize all existing systems
   void System::InitAll()
   {
     for(auto &sys : systems)
       sys->Init();
     lastTime = high_resolution_clock::now();
+    running = System::state::RUNNING;
   }
 
   // Update all the systems

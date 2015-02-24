@@ -14,6 +14,6 @@ int main()
   // Initialize all the systems that have been created already
   System::InitAll();
 
-  while(true)
+  while(System::GetState() == System::state::RUNNING)
     System::UpdateAll();
 }

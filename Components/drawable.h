@@ -7,7 +7,7 @@ namespace OpenCGE
 {
   class Drawable : public Component
   {
-    void Recv(message const& msg);
+    void RecvMsg(Message const& msg);
     float x;
     float y;
   };

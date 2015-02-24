@@ -8,13 +8,20 @@
 
 #include <vector>
   using std::vector;
+#include <string>
+  using std::string;
 
 namespace OpenCGE
 {
-  class message
+  class Message
   {
-    // Parameter 0 will be used for the message id
-    vector<int> parameters;
+  public:
+    inline size_t GetType() const { return type; }
+    inline string const& GetBody() const { return body; }
+
+  private:
+    size_t type;
+    string body;
   };
 }
 

@@ -11,9 +11,6 @@ namespace OpenCGE
   class Controller : public Component
   {
     void LoadKeymap(string const& filename);
-
-  public:
-    void Recv(message const& msg);
   };
 }
 

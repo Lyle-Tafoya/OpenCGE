@@ -20,20 +20,30 @@ namespace OpenCGE
 {
   class System
   {
-    virtual void Init() = 0;
-    virtual void Update(float delta) = 0;
-
   public:
+    enum state
+    {
+      SHUTDOWN = 0,
+      RUNNING = 1,
+      ERROR = 2
+    };
     System();
     virtual ~System() {};
+
+  private:
+    virtual void Init() = 0;
+    virtual void Update(float delta) = 0;
 
   // Static members
   public:
     static void InitAll();
     static void UpdateAll();
-    static vector<System *> systems;
+    static inline System::state GetState() { return running; }
+
   private:
+    static vector<System *> systems;
     static high_resolution_clock::time_point lastTime;
+    static System::state running;
   };
 }
 

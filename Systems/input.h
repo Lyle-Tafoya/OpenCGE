@@ -5,17 +5,14 @@
   using std::vector;
 
 #include "../Engine/system.h"
-#include "../Components/controller.h"
 
 namespace OpenCGE
 {
-  // Detects input and passes it along to controller components
+  // Detects input and passes it along to registered callback functions
   class Input : public System
   {
-    void Init();
-    void Update(float delta);
-
-    vector<Controller *> controllers;
+    void initialize();
+    void update(float delta);
   };
 }
 

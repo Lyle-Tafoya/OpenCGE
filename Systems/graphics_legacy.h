@@ -6,14 +6,13 @@
 #include <GLFW/glfw3.h>
 
 #include "../Engine/system.h"
-#include "../Components/drawable.h"
 
 namespace OpenCGE
 {
   class GraphicsLegacy : public System
   {
-    void Init();
-    void Update(float delta);
+    void initialize();
+    void update(float delta);
 
     GLFWwindow *pWindow;
     string title; // The title of the window

@@ -3,15 +3,13 @@
 
 namespace OpenCGE
 {
-  void Input::Init()
+  void Input::initialize()
   {
 
   }
 
-  void Input::Update(float delta)
+  void Input::update(float delta)
   {
     glfwPollEvents();
-
-    // TODO Compile report of all input recieved and send out messages to registered controller components for each one
   }
 }

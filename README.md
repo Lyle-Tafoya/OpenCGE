@@ -1,6 +1,6 @@
 ## OpenCGE
 
-OpenCGE 3D game engine using component-based design in C++. While the libraries being used are all cross platform, I only intend to officially support GNU/Linux operating systems. Compile on Windows or OSX at your own risk.
+OpenCGE 3D game engine using component-based design in C++. While the libraries being used are all cross platform, I only intend to officially support SteamOS and other GNU/Linux operating systems. Compile on Windows or OSX at your own risk.
 
 ### Current State
 
@@ -11,6 +11,7 @@ Currently this project is in it's early infancy and as such is not useable. All 
 To compile OpenCGE you will need the following dependencies installed:
 ```
 glfw (Simplifies getting an OpenGL context and handles basic input)
+jsoncpp (for working with json)
 ```
 
 In the future I plan on using the following dependencies:

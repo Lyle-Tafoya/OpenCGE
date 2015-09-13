@@ -7,7 +7,7 @@ namespace OpenCGE
     : pWindow(nullptr), title(winTitle), width(w), height(h) {}
 
   // Initialize our graphics system
-  void GraphicsLegacy::Init()
+  void GraphicsLegacy::initialize()
   {
     // Use GLFW to create a window
     glfwInit();
@@ -22,7 +22,7 @@ namespace OpenCGE
     glewExperimental=true;
   }
 
-  void GraphicsLegacy::Update(float delta)
+  void GraphicsLegacy::update(float delta)
   {
     glfwSwapBuffers(pWindow);
   }

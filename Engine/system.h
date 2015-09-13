@@ -1,7 +1,7 @@
 /* system.h -
- *   'system' based objects are intended to manage subsets of 'entity' objects.
- * These subsets can be used for virtually anything, be it collision detection,
- * input, or anything else.
+ *   System objects are intended to manage subsets of Component objects. These
+ * subsets can be used for virtually anything, be it collision detection, input,
+ * or anything else.
 */
 
 #ifndef _SYSTEM_H
@@ -21,7 +21,7 @@ namespace OpenCGE
   class System
   {
   public:
-    enum state
+    enum state_type
     {
       SHUTDOWN = 0,
       RUNNING = 1,
@@ -29,21 +29,24 @@ namespace OpenCGE
     };
     System();
     virtual ~System() {};
+    void recvMsg(Message const& msg);
 
   private:
-    virtual void Init() = 0;
-    virtual void Update(float delta) = 0;
+    virtual void initialize() = 0;
+    virtual void update(float delta) = 0;
+    void *(*callbacks)(Message const& msg);
 
   // Static members
   public:
-    static void InitAll();
-    static void UpdateAll();
-    static inline System::state GetState() { return running; }
+    static void initAll();
+    static void updateAll();
+    static inline System::state_type getState() { return state; }
+    // TODO Evalue whether it is necessary to have System::sendMsg()
 
   private:
     static vector<System *> systems;
     static high_resolution_clock::time_point lastTime;
-    static System::state running;
+    static System::state_type state;
   };
 }
 

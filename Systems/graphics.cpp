@@ -12,7 +12,7 @@ namespace OpenCGE
   }
 
   // Initialize our graphics system
-  void Graphics::Init()
+  void Graphics::initialize()
   {
     // Initialize window hints to default
     glfwInit();
@@ -27,7 +27,7 @@ namespace OpenCGE
     glewExperimental=true;
   }
 
-  void Graphics::Update(float delta)
+  void Graphics::update(float delta)
   {
     glfwSwapBuffers(pWindow);
   }

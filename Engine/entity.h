@@ -1,8 +1,6 @@
 /* entity.h -
- *   'entity' objects make up everything in a game. This includes players,
- * NPCs, projectiles, platforms, decals, and more. However, the most basic
- * entity is nothing more than an id. In order to add functionality to an
- * entity, you must attach one or more 'component' objects to it.
+ * 		Entity objects are nothing more than an id and an aggregate of all
+ * Components registered with this Entity id.
 */
 
 #ifndef _ENTITY_H
@@ -11,6 +9,8 @@
 #include <iostream>
 #include <vector>
   using std::vector;
+#include <string>
+  using std::string;
 #include "component.h"
 
 namespace OpenCGE
@@ -22,17 +22,17 @@ namespace OpenCGE
     inline size_t getId() { return id; }
 
   private:
-    vector<Component *> components;
+    vector<Component *> components; // TODO Change Entity.components from vector to json/hash map
     size_t id;
-    void RecvMsg(Message const& msg);
 
   // Static fields
   public:
-    static void Delete(Entity const& entity);
-    static void New(size_t type);
+    static void disassemble(Entity const& entity);
+    static void assemble(size_t type); // TODO Entity type definitions should come from json files
+    static void assemble(string type);
 
   private:
-    static vector<Entity *> entities;
+    static vector<Entity *> entities; // TODO Perform analysis of Entity::entities. Needed or unnecessary?
   };
 }
 

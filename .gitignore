@@ -13,3 +13,5 @@ Default/
 
 # Compiler files and related
 *.o
+/_Debug/
+/_Release/

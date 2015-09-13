@@ -1,6 +1,13 @@
+/* component.h -
+ *   Component objects are used to store data to be used by System objects.
+ */
+
 #ifndef _COMPONENT_H
 #define _COMPONENT_H
 
+#include <json/json.h>
+#include <string>
+  using std::string;
 #include <cstddef>
   using std::size_t;
 
@@ -12,13 +19,19 @@ namespace OpenCGE
   {
   public:
     Component();
-    void SendMsg(Message const& msg);
-    void RecvMsg(Message const& msg);
     virtual ~Component() {};
 
   private:
-    size_t id;
-    void *(*callbacks)(Message const& msg);
+    Json::Value data;
+
+  // Static members
+  public:
+    // Load components from json files into memory
+    static void load(string const& filePath);
+    static void loadAll(string const& directoryPath);
+
+  private:
+    static Json::Value components; // A place to hold a base copy of all our components in memory
   };
 }
 #endif

@@ -8,8 +8,6 @@
 #include <json/json.h>
 #include <string>
   using std::string;
-#include <cstddef>
-  using std::size_t;
 
 #include "message.h"
 
@@ -26,9 +24,9 @@ namespace OpenCGE
 
   // Static members
   public:
-    // Load components from json files into memory
-    static void load(string const& filePath);
-    static void loadAll(string const& directoryPath);
+    // Load components from JSON files into memory
+    static bool load(string const& filePath);
+    static bool loadAll(string const& directoryPath);
 
   private:
     static Json::Value components; // A place to hold a base copy of all our components in memory

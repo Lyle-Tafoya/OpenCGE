@@ -1,0 +1,8 @@
+{
+  "name": "basic_mob",
+  "components": [
+    "moveable",
+    "destructable",
+    "drawable"
+  ]
+}

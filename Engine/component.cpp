@@ -6,18 +6,23 @@ namespace OpenCGE
 {
   Json::Value Component::components;
 
-  void Component::load(string const& filePath)
+  bool Component::load(string const& filePath)
   {
-	Json::Value jsonData;
-	Json::Reader reader;
-	ifstream jsonFile(filePath, ifstream::binary);
-	bool parsingSuccessful = reader.parse(jsonFile, jsonData, false);
-	components[jsonData["name"].asString()] = jsonData;
+    Json::Value jsonData;
+    Json::Reader reader;
+    ifstream jsonFile(filePath, ifstream::binary);
+    bool parsingSuccessful = reader.parse(jsonFile, jsonData, false);
+    if(parsingSuccessful == false || jsonData["name"].isNull())
+    {
+      return false;
+    }
+    components[jsonData["name"].asString()] = jsonData;
+    return true;
   }
 
-  void Component::loadAll(string const& directoryPath)
+  bool Component::loadAll(string const& directoryPath)
   {
-
+    return false;
   }
 
 }

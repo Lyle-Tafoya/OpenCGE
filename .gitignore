@@ -2,6 +2,7 @@
 .cproject
 .project
 .settings
+nbproject
 
 # Binary folders
 Debug/
@@ -15,3 +16,5 @@ Default/
 *.o
 /_Debug/
 /_Release/
+/build/
+/dist/

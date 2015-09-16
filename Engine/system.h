@@ -10,9 +10,7 @@
 #include <vector>
   using std::vector;
 #include <chrono>
-  using std::chrono::high_resolution_clock;
-  using std::chrono::duration;
-  using std::chrono::duration_cast;
+  using namespace std::chrono;
 
 #include "message.h"
 
@@ -30,7 +28,7 @@ namespace OpenCGE
     System();
     virtual ~System() {};
     void recvMsg(Message const& msg);
-
+    
   private:
     virtual void initialize() = 0;
     virtual void update(float delta) = 0;
@@ -41,7 +39,7 @@ namespace OpenCGE
     static void initAll();
     static void updateAll();
     static inline System::state_type getState() { return state; }
-    // TODO Evalue whether it is necessary to have System::sendMsg()
+    // TODO Evaluate whether it is necessary to have System::sendMsg()
 
   private:
     static vector<System *> systems;

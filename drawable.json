@@ -1,0 +1,6 @@
+{
+    "name": "drawable",
+    "dependencies": [
+        "location"
+    ]
+}

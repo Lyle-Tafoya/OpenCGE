@@ -12,7 +12,7 @@
 #include <string>
   using std::string;
 #include "component.h"
-
+  
 namespace OpenCGE
 {
   class Entity
@@ -22,17 +22,18 @@ namespace OpenCGE
     inline size_t getId() { return id; }
 
   private:
-    vector<Component *> components; // TODO Change Entity.components from vector to json/hash map
+    Json::Value components;
     size_t id;
 
   // Static fields
   public:
+    static bool load(string const& filePath);
+    static bool loadAll(string const& directoryPath);
     static void disassemble(Entity const& entity);
-    static void assemble(size_t type); // TODO Entity type definitions should come from json files
-    static void assemble(string type);
+    static Entity *assemble(string const& type);
 
   private:
-    static vector<Entity *> entities; // TODO Perform analysis of Entity::entities. Needed or unnecessary?
+    static Json::Value entities;
   };
 }
 

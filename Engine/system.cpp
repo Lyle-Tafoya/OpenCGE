@@ -15,7 +15,9 @@ namespace OpenCGE
   void System::initAll()
   {
     for(auto &sys : systems)
+    {
       sys->initialize();
+    }
     lastTime = high_resolution_clock::now();
     state = System::state_type::RUNNING;
   }
@@ -24,12 +26,14 @@ namespace OpenCGE
   void System::updateAll()
   {
     high_resolution_clock::time_point currentTime = high_resolution_clock::now();
-    duration<float> time_span = duration_cast<duration<float>>(currentTime-lastTime);
-    float delta = time_span.count();
+    duration<float> timeSpan = duration_cast<duration<float>>(currentTime-lastTime);
+    float delta = timeSpan.count();
     lastTime = currentTime;
 
     // Update all our systems with the time delta
-    for(auto &sys : systems)
-      sys->update(delta);
+    for(auto &system : systems)
+    {
+      system->update(delta);
+    }
   }
 }

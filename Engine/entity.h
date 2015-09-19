@@ -11,6 +11,7 @@
   using std::vector;
 #include <string>
   using std::string;
+#include <json/json.h>
 #include "component.h"
   
 namespace OpenCGE

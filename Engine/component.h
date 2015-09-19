@@ -21,7 +21,6 @@ namespace OpenCGE
 
   private:
     Json::Value data;
-
   // Static members
   public:
     // Load components from JSON files into memory

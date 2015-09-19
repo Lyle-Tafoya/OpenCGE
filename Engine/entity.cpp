@@ -37,6 +37,7 @@ namespace OpenCGE
 
   Entity *Entity::assemble(string const& type)
   {
+    return nullptr;
     /*
     Json::Value required_components = entities["components"];
     for(auto component : required_componets)

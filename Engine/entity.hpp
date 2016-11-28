@@ -6,13 +6,11 @@
 #ifndef _ENTITY_H
 #define _ENTITY_H
 
-#include <iostream>
-#include <vector>
-  using std::vector;
 #include <string>
   using std::string;
-#include <json/json.h>
-#include "component.h"
+#include "json.hpp"
+  using nlohmann::json;
+#include "component.hpp"
   
 namespace OpenCGE
 {
@@ -23,7 +21,7 @@ namespace OpenCGE
     inline size_t getId() { return id; }
 
   private:
-    Json::Value components;
+    json components;
     size_t id;
 
   // Static fields
@@ -31,10 +29,10 @@ namespace OpenCGE
     static bool load(string const& filePath);
     static bool loadAll(string const& directoryPath);
     static void disassemble(Entity const& entity);
-    static Entity *assemble(string const& type);
+    static Entity* assemble(string const& type);
 
   private:
-    static Json::Value entities;
+    static json entities;
   };
 }
 

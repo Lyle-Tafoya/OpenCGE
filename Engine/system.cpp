@@ -1,4 +1,4 @@
-#include "system.h"
+#include "system.hpp"
 
 namespace OpenCGE
 {

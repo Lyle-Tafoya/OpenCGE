@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include "graphics.h"
+#include "graphics.hpp"
 
 namespace OpenCGE
 {

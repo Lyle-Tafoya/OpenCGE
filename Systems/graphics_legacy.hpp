@@ -5,7 +5,7 @@
   using std::string;
 #include <GLFW/glfw3.h>
 
-#include "../Engine/system.h"
+#include "../Engine/system.hpp"
 
 namespace OpenCGE
 {

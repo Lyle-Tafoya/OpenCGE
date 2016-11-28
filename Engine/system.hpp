@@ -12,7 +12,7 @@
 #include <chrono>
   using namespace std::chrono;
 
-#include "message.h"
+#include "message.hpp"
 
 namespace OpenCGE
 {

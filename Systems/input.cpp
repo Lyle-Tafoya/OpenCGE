@@ -1,5 +1,6 @@
+#include "input.hpp"
+
 #include <GLFW/glfw3.h>
-#include "input.h"
 
 namespace OpenCGE
 {

@@ -1,8 +1,7 @@
-#include "Engine/system.h"
-#include "Engine/component.h"
-#include "Systems/graphics.h"
-//#include "Systems/graphics_legacy.h"
-#include "Systems/input.h"
+#include "Engine/component.hpp"
+#include "Engine/system.hpp"
+#include "Systems/graphics.hpp"
+#include "Systems/input.hpp"
 
 using namespace OpenCGE;
 

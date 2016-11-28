@@ -9,7 +9,8 @@
   using std::vector;
 #include <string>
   using std::string;
-#include <json/json.h>
+#include "json.hpp"
+  using nlohmann::json;
 
 namespace OpenCGE
 {
@@ -17,12 +18,12 @@ namespace OpenCGE
   {
   public:
     inline size_t getType() const { return type; }
-    inline Json::Value const& getBody() const { return body; }
-    // TODO Overload Message::[] to provide read-only access to the json/hash map
+    inline json const& getBody() const { return body; }
+    json const& operator[](string const& key) const { return body[key]; }
 
   private:
     size_t type;
-    Json::Value body;
+    json body;
   };
 }
 

@@ -1,10 +1,10 @@
 #include <fstream>
-using std::ifstream;
-#include "entity.h"
+  using std::ifstream;
+#include "entity.hpp"
 
 namespace OpenCGE
 {
-  Json::Value Entity::entities;
+  json Entity::entities;
 
   // Constructor
   Entity::Entity()
@@ -13,15 +13,13 @@ namespace OpenCGE
 
   bool Entity::load(string const& filePath)
   {
-    Json::Value jsonData;
-    Json::Reader reader;
+    json jsonData;
     ifstream jsonFile(filePath, ifstream::binary);
-    bool parsingSuccessful = reader.parse(jsonFile, jsonData, false);
-    if(parsingSuccessful == false || jsonData["name"].isNull() || jsonData["components"].isNull())
+    if(jsonData["name"].is_null() || jsonData["components"].is_null())
     {
       return false;
     }
-    entities[jsonData["name"].asString()] = jsonData["components"];
+    entities[jsonData["name"].dump()] = jsonData["components"];
     return true;
   }
   
@@ -33,16 +31,22 @@ namespace OpenCGE
   // Delete an existing entity with a known id
   void Entity::disassemble(Entity const& entity)
   {
+    // TODO Entity::disassemble
   }
 
-  Entity *Entity::assemble(string const& type)
+  // Instantiate an Entity and load it's components
+  Entity* Entity::assemble(string const& type)
   {
-    return nullptr;
-    /*
-    Json::Value required_components = entities["components"];
-    for(auto component : required_componets)
+    Entity *entity = new Entity();
+    for(auto component_type : entities[type])
     {
-      
-    }*/
+      Component *component = Component::get(type);
+      if(component == nullptr)
+      {
+        // TODO Implement proper error handling for Entity::assemble
+        return nullptr;
+      }
+    }
+    return entity;
   }
 }

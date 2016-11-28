@@ -4,7 +4,7 @@
 #include <vector>
   using std::vector;
 
-#include "../Engine/system.h"
+#include "../Engine/system.hpp"
 
 namespace OpenCGE
 {

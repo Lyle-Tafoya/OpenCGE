@@ -5,30 +5,33 @@
 #ifndef _COMPONENT_H
 #define _COMPONENT_H
 
-#include <json/json.h>
 #include <string>
   using std::string;
+#include "json.hpp"
+  using nlohmann::json;
 
-#include "message.h"
+#include "message.hpp"
 
 namespace OpenCGE
 {
   class Component
   {
   public:
-    Component();
+    Component(string const& type);
     virtual ~Component() {};
+    json const& operator[](string const& key) const { return data[key]; }
 
   private:
-    Json::Value data;
+    json data;
+
   // Static members
   public:
-    // Load components from JSON files into memory
     static bool load(string const& filePath);
     static bool loadAll(string const& directoryPath);
+    static Component* get(string const& type);
 
   private:
-    static Json::Value components; // A place to hold a base copy of all our components in memory
+    static json components; // A place to hold a base copy of all our components in memory
   };
 }
 #endif

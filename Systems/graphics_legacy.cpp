@@ -1,5 +1,5 @@
 #include <GL/glew.h>
-#include "graphics_legacy.h"
+#include "graphics_legacy.hpp"
 
 namespace OpenCGE
 {

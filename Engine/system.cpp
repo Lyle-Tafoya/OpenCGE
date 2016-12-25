@@ -1,10 +1,14 @@
 #include <boost/algorithm/string.hpp>
- using boost::split;
- using boost::is_any_of;
+  using boost::split;
+  using boost::is_any_of;
 #include <boost/regex.hpp>
- using boost::regex;
+  using boost::regex;
 #include <boost/algorithm/string/regex.hpp>
- using boost::split_regex;
+  using boost::split_regex;
+#include <boost/filesystem.hpp>
+  using boost::make_iterator_range;
+  using boost::filesystem::path;
+  using boost::filesystem::directory_iterator;
 #include <vector>
  using std::vector;
 #include <fstream>
@@ -47,10 +51,16 @@ namespace OpenCGE
 
   void System::componentsLoad(string const& directory_path)
   {
+    path component_directory(directory_path);
+    for(auto &dir_entry : make_iterator_range(directory_iterator(component_directory), {}))
+    {
+      System::componentLoad(dir_entry.path().string());
+    }
   }
 
   void System::componentsUnload()
   {
+    component_templates.clear();
   }
 
   void System::entitiesLoad(string const& directory_path)

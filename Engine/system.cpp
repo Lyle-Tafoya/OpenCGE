@@ -18,6 +18,7 @@
 namespace OpenCGE
 {
   json System::component_templates;
+  json System::entity_templates;
 
   //json System::component_templates;
   void System::callbackTrigger(json const& message)
@@ -65,10 +66,16 @@ namespace OpenCGE
 
   void System::entitiesLoad(string const& directory_path)
   {
+    path entity_directory(directory_path);
+    for(auto &dir_entry : make_iterator_range(directory_iterator(entity_directory), {}))
+    {
+      System::entityLoad(dir_entry.path().string());
+    }
   }
 
   void System::entitiesUnload()
   {
+    entity_templates.clear();
   }
 
   string System::entityCreate(string const& entity_name)
@@ -81,6 +88,16 @@ namespace OpenCGE
 
   void System::entityLoad(string const& file_path)
   {
+    vector<string> fields;
+    split_regex(fields, file_path, regex("\\.json"));
+    string entity_name = fields.front();
+    split(fields, entity_name, is_any_of("/"));
+    entity_name = fields.back();
+    ifstream file(file_path);
+    json j;
+    file >> j;
+    entity_templates[entity_name] = j;
+    std::cout << entity_templates << std::endl;
   }
 
   void System::entityUnload(string const& entity_name)

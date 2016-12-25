@@ -7,44 +7,43 @@
 #ifndef _SYSTEM_H
 #define _SYSTEM_H
 
-#include <vector>
-  using std::vector;
-#include <chrono>
-  using namespace std::chrono;
-
-#include "message.hpp"
+#include <string>
+  using std::string;
+#include "json.hpp"
+  using nlohmann::json;
 
 namespace OpenCGE
 {
   class System
   {
-  public:
-    enum state_type
-    {
-      SHUTDOWN = 0,
-      RUNNING = 1,
-      ERROR = 2
-    };
-    System();
-    virtual ~System() {};
-    void recvMsg(Message const& msg);
-    
-  private:
-    virtual void initialize() = 0;
-    virtual void update(float delta) = 0;
-    void *(*callbacks)(Message const& msg);
-
   // Static members
   public:
-    static void initAll();
-    static void updateAll();
-    static inline System::state_type getState() { return state; }
-    // TODO Evaluate whether it is necessary to have System::sendMsg()
+    static void callbackTrigger(json const& message);
+    static void componentCreate(string const& component_name, string const& entity_id);
+    static void componentDelete(string const& component_name, string const& entity_id);
+    static void componentLoad(string const& file_path);
+    static void componentUnload(string const& component_name);
+    static void componentsLoad(string const& directory_path);
+    static void componentsUnload();
+    static void entitiesLoad(string const& directory_path);
+    static void entitiesUnload();
+    static string entityCreate(string const& entity_name);
+    static void entityDelete(string const& entity_delete);
+    static void entityLoad(string const& file_path);
+    static void entityUnload(string const& entity_name);
+
+  protected:
+    static void callbackRegister(string const& message_type, void *(*callback)(json message));
 
   private:
-    static vector<System *> systems;
-    static high_resolution_clock::time_point lastTime;
-    static System::state_type state;
+    static json callback_registry;
+    static json component_registry;
+    static json component_templates;
+    static size_t entity_count;
+    static json entity_registry;
+    static json entity_templates;
+
+    static void *(*callbacks)(Message const& msg);
   };
 }
 

@@ -1,8 +1,0 @@
-{
-  "name": "destructable",
-  "dependencies": [],
-  "fields": [
-    "durability": 100,
-    "max_durability": 100
-  ]
-}

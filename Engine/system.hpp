@@ -33,7 +33,7 @@ namespace OpenCGE
     static void entityUnload(string const& entity_name);
 
   protected:
-    static void callbackRegister(string const& message_type, void *(*callback)(json message));
+    static void callbackRegister(string const& message_type, void (*callback)(json const& message));
 
   private:
     static json callback_registry;
@@ -43,7 +43,7 @@ namespace OpenCGE
     static json entity_registry;
     static json entity_templates;
 
-    static void *(*callbacks)(Message const& msg);
+    static void (*callbacks)(json const& message);
   };
 }
 

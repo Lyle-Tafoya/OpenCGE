@@ -1,3 +1,7 @@
+#include <fstream>
+  using std::ifstream;
+#include <unordered_set>
+  using std::unordered_set;
 #include <boost/algorithm/string.hpp>
   using boost::split;
   using boost::is_any_of;
@@ -9,28 +13,41 @@
   using boost::make_iterator_range;
   using boost::filesystem::path;
   using boost::filesystem::directory_iterator;
-#include <vector>
- using std::vector;
-#include <fstream>
- using std::ifstream;
 #include "system.hpp"
 
 namespace OpenCGE
 {
-  json System::component_templates;
-  json System::entity_templates;
+  unordered_map<string,vector<void (*)(json const&)>> System::callback_registry;
+  unordered_map<string,vector<System *>> System::component_registry;
+  unordered_map<string,json> System::component_templates;
+  size_t System::entity_count = 0;
+  unordered_map<size_t,vector<System *>> System::entity_registry;
+  unordered_map<string,json> System::entity_templates;
 
-  //json System::component_templates;
   void System::callbackTrigger(json const& message)
   {
+    for(auto callback_method : callback_registry[message["type_id"]])
+    {
+      callback_method(message);
+    }
   }
 
-  void System::componentCreate(string const& component_name, string const& entity_id)
+  void System::componentCreate(string const& component_name, size_t entity_id)
   {
+    json new_component = component_templates[component_name];
+    new_component["entity_id"] = entity_id;
+    for(System *system : component_registry[component_name])
+    {
+      system->componentAdd(component_name, entity_id);
+    }
   }
 
-  void System::componentDelete(string const& component_name, string const& entity_id)
+  void System::componentDelete(string const& component_name, size_t entity_id)
   {
+    for(System *system : component_registry[component_name])
+    {
+      system->componentRemove(component_name, entity_id);
+    }
   }
 
   void System::componentLoad(string const& file_path)
@@ -48,6 +65,7 @@ namespace OpenCGE
 
   void System::componentUnload(string const& component_name)
   {
+    component_templates.erase(component_name);
   }
 
   void System::componentsLoad(string const& directory_path)
@@ -78,12 +96,31 @@ namespace OpenCGE
     entity_templates.clear();
   }
 
-  string System::entityCreate(string const& entity_name)
+  size_t System::entityCreate(string const& entity_name)
   {
-  }
+    size_t entity_id = entity_count++;
+    unordered_set<System *> entity_systems_set;
+    for(string component_name : entity_templates[entity_name]["components"])
+    {
+      for(System *system : component_registry[component_name])
+      {
+        entity_systems_set.insert(system);
+      }
+      System::componentCreate(component_name, entity_id);
+    }
+    vector<System *> entity_systems(entity_systems_set.begin(), entity_systems_set.end());
+    entity_registry[entity_id] = entity_systems;
 
-  void System::entityDelete(string const& entity_delete)
+    return entity_id;
+  }
+  
+  void System::entityDelete(size_t entity_id)
   {
+    for(System *system : entity_registry[entity_id])
+    {
+      system->entityRemove(entity_id);
+    }
+    entity_registry.erase(entity_id);
   }
 
   void System::entityLoad(string const& file_path)
@@ -97,11 +134,35 @@ namespace OpenCGE
     json j;
     file >> j;
     entity_templates[entity_name] = j;
-    std::cout << entity_templates << std::endl;
   }
 
   void System::entityUnload(string const& entity_name)
   {
+    entity_templates.erase(entity_name);
+  }
+
+  void System::componentAdd(string const& component_name, json component)
+  {
+    size_t entity_id = component["entity_id"];
+    entities[entity_id][component_name] = component;
+  }
+
+  void System::componentRemove(string const& component_name, size_t entity_id)
+  {
+    entities[entity_id].erase(component_name);
+  }
+
+  void System::entityRemove(size_t entity_id)
+  {
+    entities.erase(entity_id);
+  }
+
+  void System::componentsRegister(vector<string> const& valid_components)
+  {
+    for(string component_name : valid_components)
+    {
+      component_registry[component_name].push_back(this);
+    }
   }
 
 }

@@ -15,7 +15,8 @@ namespace OpenCGE
 
   void GraphicsNcurses::sceneUpdate(json const& message)
   {
-    entities[message["entity_id"]]["scene_ncurses"]["string"] = message["string"];
+    json &scene_component = *entities[message["entity_id"].get<size_t>()]["scene_ncurses"];
+    scene_component["string"] = message["string"];
   }
 
   void GraphicsNcurses::update(json const& message)
@@ -23,10 +24,20 @@ namespace OpenCGE
     for(auto entity : entities)
     {
       size_t entity_id = entity.first;
-      json components = entity.second;
-      json position = components["position"];
-      mvwaddstr(screen, position["y"], position["x"], components["scene_ncurses"]["string"].get<string>().c_str());
-      wrefresh(screen);
+      unordered_map<string,json *> components = entity.second;
+      json &position = *components["position"];
+      json &scene = *components["scene_ncurses"];
+      mvwaddstr(screen, position["y"], position["x"], scene["string"].get<string>().c_str());
+    }
+    wrefresh(screen);
+    for(auto entity : entities)
+    {
+      size_t entity_id = entity.first;
+      unordered_map<string,json *> components = entity.second;
+      json &position = *components["position"];
+      json &scene = *components["scene_ncurses"];
+
+      mvwaddstr(screen, position["y"], position["x"], string(scene["string"].get<string>().size(),' ').c_str());
     }
   }
 

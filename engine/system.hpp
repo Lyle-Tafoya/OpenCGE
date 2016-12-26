@@ -53,13 +53,13 @@ namespace OpenCGE
     static unordered_map<string,json> entity_templates;
 
   public:
-    void componentAdd(string const& component_name, json component);
+    void componentAdd(string const& component_name, json * component, size_t entity_id);
     void componentRemove(string const& component_name, size_t entity_id);
     void entityRemove(size_t entity_id);
 
   protected:
     void componentsRegister(vector<string> const& valid_components);
-    unordered_map<size_t,json> entities;
+    unordered_map<size_t,unordered_map<string,json *>> entities;
   };
 }
 

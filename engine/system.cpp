@@ -34,11 +34,10 @@ namespace OpenCGE
 
   void System::componentCreate(string const& component_name, size_t entity_id)
   {
-    json new_component = component_templates[component_name];
-    new_component["entity_id"] = entity_id;
+    json *new_component = new json(component_templates[component_name]);
     for(System *system : component_registry[component_name])
     {
-      system->componentAdd(component_name, new_component);
+      system->componentAdd(component_name, new_component, entity_id);
     }
   }
 
@@ -141,9 +140,8 @@ namespace OpenCGE
     entity_templates.erase(entity_name);
   }
 
-  void System::componentAdd(string const& component_name, json component)
+  void System::componentAdd(string const& component_name, json * component, size_t entity_id)
   {
-    size_t entity_id = component["entity_id"];
     entities[entity_id][component_name] = component;
   }
 

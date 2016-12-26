@@ -1,0 +1,9 @@
+{
+  "components": [
+    "orientation",
+    "position",
+    "scene_ncurses",
+    "torque",
+    "velocity"
+  ]
+}

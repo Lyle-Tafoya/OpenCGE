@@ -17,7 +17,7 @@
 
 namespace OpenCGE
 {
-  unordered_map<string,vector<void (*)(json const&)>> System::callback_registry;
+  unordered_map<string,vector<function<void(json const&)>>> System::callback_registry;
   unordered_map<string,vector<System *>> System::component_registry;
   unordered_map<string,json> System::component_templates;
   size_t System::entity_count = 0;
@@ -38,7 +38,7 @@ namespace OpenCGE
     new_component["entity_id"] = entity_id;
     for(System *system : component_registry[component_name])
     {
-      system->componentAdd(component_name, entity_id);
+      system->componentAdd(component_name, new_component);
     }
   }
 
@@ -164,5 +164,5 @@ namespace OpenCGE
       component_registry[component_name].push_back(this);
     }
   }
-
 }
+

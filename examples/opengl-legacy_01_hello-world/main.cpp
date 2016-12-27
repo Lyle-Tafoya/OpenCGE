@@ -4,9 +4,9 @@
   using std::chrono::high_resolution_clock;
   using std::chrono::milliseconds;
   using std::chrono::time_point;
-#include "../../engine/system.hpp"
-#include "../../systems/graphics_opengl_legacy.hpp"
-#include "../../systems/physics.hpp"
+#include <OpenCGE/system.hpp>
+#include <OpenCGE/graphics_opengl_legacy.hpp>
+#include <OpenCGE/physics.hpp>
   using namespace OpenCGE;
 
 int main()
@@ -19,19 +19,13 @@ int main()
   GraphicsOpenGLLegacy graphics_system;
   Physics physics_system;
 
-  /*
-  // Create a new entity
-  size_t entity_id = System::entityCreate("object_ncurses");
-  System::callbackTrigger({{"type_id","scene_update"},{"entity_id",entity_id},{"string","Hello World"}});
-  System::callbackTrigger({{"type_id","position_update"},{"entity_id",entity_id},{"x",5},{"y",2},{"z",0}});
-  System::callbackTrigger({{"type_id","velocity_apply"},{"entity_id",entity_id},{"x",0},{"y",1},{"z",0}});
-  */
-
+  // Timing
   high_resolution_clock timer;
   auto program_start = timer.now();
   auto current_time = program_start, previous_time = program_start;
   float delta_time = 0.f;
 
+  // Main loop
   while(true)
   {
     previous_time = current_time;

@@ -1,4 +1,4 @@
-#include "graphics_opengl_legacy.hpp"
+#include <OpenCGE/graphics_opengl_legacy.hpp>
 #include <GL/glu.h>
 
 namespace OpenCGE

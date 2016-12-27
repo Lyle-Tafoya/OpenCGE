@@ -8,7 +8,7 @@ Currently this project is in it's early infancy and as such is not useable. I wi
 
 ### Dependencies
 
-In the future I plan on using the following dependencies:
+Here are the dependencies I am developing with:
 ```
 GLFW (Simplifies window creation and input handling)
 GLM (for dealing with matrices)

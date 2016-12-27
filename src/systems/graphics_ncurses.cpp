@@ -1,4 +1,4 @@
-#include "graphics_ncurses.hpp"
+#include <OpenCGE/graphics_ncurses.hpp>
 
 namespace OpenCGE
 {
@@ -23,7 +23,6 @@ namespace OpenCGE
   {
     for(auto entity : entities)
     {
-      size_t entity_id = entity.first;
       unordered_map<string,json *> components = entity.second;
       json &position = *components["position"];
       json &scene = *components["scene_ncurses"];
@@ -32,7 +31,6 @@ namespace OpenCGE
     wrefresh(screen);
     for(auto entity : entities)
     {
-      size_t entity_id = entity.first;
       unordered_map<string,json *> components = entity.second;
       json &position = *components["position"];
       json &scene = *components["scene_ncurses"];

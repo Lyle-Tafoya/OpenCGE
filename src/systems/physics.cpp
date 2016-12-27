@@ -1,4 +1,4 @@
-#include "physics.hpp"
+#include <OpenCGE/physics.hpp>
 #include <iostream>
 
 namespace OpenCGE
@@ -35,7 +35,6 @@ namespace OpenCGE
     float time_delta = message["time_delta"];
     for(auto entity : entities)
     {
-      size_t entity_id = entity.first;
       unordered_map<string,json *> components = entity.second;
 
       json &position = *components["position"];

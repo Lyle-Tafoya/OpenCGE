@@ -1,4 +1,4 @@
-#include "../engine/system.hpp"
+#include <OpenCGE/system.hpp>
 #include <ncurses.h>
 
 namespace OpenCGE

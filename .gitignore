@@ -18,3 +18,10 @@ Default/
 /_Release/
 /build/
 /dist/
+/EntityHandler Debug/
+/Physics System Debug/
+/OpenGL Legacy System Debug/
+/EntityHandler Release/
+/OpenGL Legacy System Release/
+/Physics System Release/
+/lib/

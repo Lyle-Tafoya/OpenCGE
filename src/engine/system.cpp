@@ -13,7 +13,7 @@
   using boost::make_iterator_range;
   using boost::filesystem::path;
   using boost::filesystem::directory_iterator;
-#include "system.hpp"
+#include <OpenCGE/system.hpp>
 
 namespace OpenCGE
 {

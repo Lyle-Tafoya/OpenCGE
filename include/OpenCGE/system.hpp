@@ -1,9 +1,3 @@
-/* system.h -
- *   System objects are intended to manage subsets of Component objects. These
- * subsets can be used for virtually anything, be it collision detection, input,
- * or anything else.
-*/
-
 #ifndef _SYSTEM_H
 #define _SYSTEM_H
 

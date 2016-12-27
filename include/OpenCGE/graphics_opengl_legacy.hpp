@@ -1,4 +1,4 @@
-#include "../engine/system.hpp"
+#include <OpenCGE/system.hpp>
 #include <GLFW/glfw3.h>
 #include <unordered_map>
   using std::unordered_map;

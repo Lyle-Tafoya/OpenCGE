@@ -166,7 +166,7 @@ namespace OpenCGE
   {
     previous_time = current_time;
     current_time = timer.now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(current_time - previous_time).count() / 1000.f;
+    return (float)std::chrono::duration_cast<std::chrono::microseconds>(current_time - previous_time).count() / 1000000.f;
   }
 
   void System::timerStart()

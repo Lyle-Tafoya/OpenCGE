@@ -6,11 +6,10 @@ namespace OpenCGE
   Physics::Physics()
   {
     componentsRegister({"orientation", "position", "torque", "velocity"});
-
-    System::callbackRegister("position_update", &Physics::positionUpdate, this);
-    System::callbackRegister("torque_apply", &Physics::torqueApply, this);
-    System::callbackRegister("time_passed", &Physics::update, this);
-    System::callbackRegister("velocity_apply", &Physics::velocityApply, this);
+    callbackRegister("position_update", &Physics::positionUpdate, this);
+    callbackRegister("torque_apply", &Physics::torqueApply, this);
+    callbackRegister("time_passed", &Physics::update, this);
+    callbackRegister("velocity_apply", &Physics::velocityApply, this);
   }
 
   void Physics::positionUpdate(Json & message)

@@ -15,8 +15,8 @@ int main()
   // Create a new entity
   size_t entity_id = OpenCGE::System::entityCreate("object_ncurses");
   OpenCGE::System::callbackTrigger({{"type_id","scene_update"},{"entity_id",entity_id},{"string","Hello World"}});
-  OpenCGE::System::callbackTrigger({{"type_id","position_update"},{"entity_id",entity_id},{"x",5},{"y",2},{"z",0}});
-  OpenCGE::System::callbackTrigger({{"type_id","velocity_apply"},{"entity_id",entity_id},{"x",0},{"y",1},{"z",0}});
+  OpenCGE::System::callbackTrigger({{"type_id","position_update"},{"entity_id",entity_id},{"x",5.f},{"y",2.f},{"z",0.f}});
+  OpenCGE::System::callbackTrigger({{"type_id","velocity_apply"},{"entity_id",entity_id},{"x",0.f},{"y",1.f},{"z",0.f}});
 
   OpenCGE::System::timerStart();
   while(true)

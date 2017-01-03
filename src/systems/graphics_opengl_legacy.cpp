@@ -12,9 +12,9 @@ namespace OpenCGE
   GraphicsOpenGLLegacy::GraphicsOpenGLLegacy()
   {
     componentsRegister({"orientation", "position", "scene_3d"});
-    System::callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
-    System::callbackRegister("shutdown", &GraphicsOpenGLLegacy::shutdown, this);
-    System::callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
+    callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
+    callbackRegister("shutdown", &GraphicsOpenGLLegacy::shutdown, this);
+    callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
 
     glfwInit();
     window = glfwCreateWindow(640, 480, "OpenCGE", NULL, NULL);

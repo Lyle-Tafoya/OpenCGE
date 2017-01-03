@@ -16,8 +16,15 @@ int main()
   System::entitiesLoad("data/entities");
 
   // Instantiate our systems
-  GraphicsOpenGLLegacy graphics_system;
   Physics physics_system;
+  GraphicsOpenGLLegacy graphics_system;
+  graphics_system.scenesLoad("assets/models");
+
+  // Create a new entity
+  size_t entity_id = System::entityCreate("object_3d");
+  System::callbackTrigger({{"type_id","scene_update"},{"entity_id",entity_id},{"scene_name","hello_world"}});
+  System::callbackTrigger({{"type_id","torque_apply"},{"entity_id",entity_id},{"x",50.f},{"y",50.f},{"z",0.f}});
+  System::callbackTrigger({{"type_id","velocity_apply"},{"entity_id",entity_id},{"x",0.f},{"y",0.f},{"z",-0.1f}});
 
   // Timing
   high_resolution_clock timer;
@@ -32,7 +39,6 @@ int main()
     current_time = timer.now();
     delta_time = duration_cast<milliseconds>(current_time - previous_time).count() / 1000.f;
     System::callbackTrigger({{"type_id","time_passed"},{"time_delta",delta_time}});
-    sleep(1);
   }
 
   System::callbackTrigger({{"type_id","shutdown"}});

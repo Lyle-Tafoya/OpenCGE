@@ -13,33 +13,34 @@ namespace OpenCGE
     curs_set(0);
   }
 
-  void GraphicsNcurses::sceneUpdate(json const& message)
+  void GraphicsNcurses::sceneUpdate(Json & message)
   {
-    json &scene_component = *entities[message["entity_id"].get<size_t>()]["scene_ncurses"];
-    scene_component["string"] = message["string"];
+    int &entity_id = *(int *)message["entity_id"];
+    Json &scene_ncurses = *(Json *)entities[entity_id]["scene_ncurses"];
+    *(string *)scene_ncurses["string"] = *(string *)message["string"];
   }
 
-  void GraphicsNcurses::update(json const& message)
+  void GraphicsNcurses::update(Json & message)
   {
     for(auto entity : entities)
     {
-      unordered_map<string,json *> components = entity.second;
-      json &position = *components["position"];
-      json &scene = *components["scene_ncurses"];
-      mvwaddstr(screen, position["y"], position["x"], scene["string"].get<string>().c_str());
+      unordered_map<string, Json *> &components = entity.second;
+      Json &position = *components["position"];
+      Json &scene_ncurses = *components["scene_ncurses"];
+      mvwaddstr(screen, *(int *)position["y"], *(int *)position["x"], ((string *)scene_ncurses["string"])->c_str());
     }
     wrefresh(screen);
     for(auto entity : entities)
     {
-      unordered_map<string,json *> components = entity.second;
-      json &position = *components["position"];
-      json &scene = *components["scene_ncurses"];
-
-      mvwaddstr(screen, position["y"], position["x"], string(scene["string"].get<string>().size(),' ').c_str());
+      unordered_map<string, Json *> &components = entity.second;
+      Json &position = *components["position"];
+      Json &scene_ncurses = *components["scene_ncurses"];
+      string empty_str(((string *)scene_ncurses["string"])->size(), ' ');
+      mvwaddstr(screen, *(int *)position["y"], *(int *)position["x"], empty_str.c_str());
     }
   }
 
-  void GraphicsNcurses::shutdown(json const& message)
+  void GraphicsNcurses::shutdown(Json & message)
   {
     endwin();
   }

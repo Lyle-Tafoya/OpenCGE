@@ -14,49 +14,54 @@ namespace OpenCGE
     System::callbackRegister("velocity_apply", &Physics::velocityApply, this);
   }
 
-  void Physics::positionUpdate(json const& message)
+  void Physics::positionUpdate(Json & message)
   {
-    json &position = *entities[message["entity_id"]]["position"];
-    position["x"] = message["x"];
-    position["y"] = message["y"];
-    position["z"] = message["z"];
+    int &entity_id = *(int *)message["entity_id"];
+    Json &position = *(Json *)entities[entity_id]["position"];
+
+    *(float *)position["x"] = *(float *)message["x"];
+    *(float *)position["y"] = *(float *)message["y"];
+    *(float *)position["z"] = *(float *)message["z"];
   }
 
-  void Physics::torqueApply(json const& message)
+  void Physics::torqueApply(Json & message)
   {
-    json &torque = *entities[message["entity_id"]]["torque"];
-    torque["pitch"] = torque["pitch"].get<float>() + message["x"].get<float>();
-    torque["roll"] = torque["roll"].get<float>() + message["y"].get<float>();
-    torque["yaw"] = torque["yaw"].get<float>() + message["z"].get<float>();
+    int &entity_id = *(int *)message["entity_id"];
+    Json &torque = *(Json *)entities[entity_id]["torque"];
+
+    *(float *)torque["pitch"] += *(float *)message["x"];
+    *(float *)torque["roll"] += *(float *)message["y"];
+    *(float *)torque["yaw"] += *(float *)message["z"];
   }
 
-  void Physics::update(json const& message)
+  void Physics::update(Json & message)
   {
-    float time_delta = message["time_delta"];
+    float &time_delta = *(float *)message["time_delta"];
     for(auto entity : entities)
     {
-      unordered_map<string,json *> components = entity.second;
+      unordered_map<string,Json *> &components = entity.second;
 
-      json &position = *components["position"];
-      json &velocity = *components["velocity"];
-      
-      position["x"] = position["x"].get<float>() + velocity["x"].get<float>() * time_delta;
-      position["y"] = position["y"].get<float>() + velocity["y"].get<float>() * time_delta;
-      position["z"] = position["z"].get<float>() + velocity["z"].get<float>() * time_delta;
+      Json &position = *(Json *)components["position"];
+      Json &velocity = *(Json *)components["velocity"];
+      *(float *)position["x"] += *(float *)velocity["x"] * time_delta;
+      *(float *)position["y"] += *(float *)velocity["y"] * time_delta;
+      *(float *)position["z"] += *(float *)velocity["z"] * time_delta;
 
-      json &orientation = *components["orientation"];
-      json &torque = *components["torque"];
-      orientation["pitch"] = orientation["pitch"].get<float>() + torque["pitch"].get<float>() * time_delta;
-      orientation["roll"] = orientation["roll"].get<float>() + torque["roll"].get<float>() * time_delta;
-      orientation["yaw"] = orientation["yaw"].get<float>() + torque["yaw"].get<float>() * time_delta;
+      Json &orientation = *(Json *)components["orientation"];
+      Json &torque = *(Json *)components["torque"];
+      *(float *)orientation["pitch"] += *(float *)torque["pitch"] * time_delta;
+      *(float *)orientation["roll"] += *(float *)torque["roll"] * time_delta;
+      *(float *)orientation["yaw"] += *(float *)torque["yaw"] * time_delta;
     }
   }
 
-  void Physics::velocityApply(json const& message)
+  void Physics::velocityApply(Json & message)
   {
-    json &velocity = *entities[message["entity_id"]]["velocity"];
-    velocity["x"] = velocity["x"].get<float>() + message["x"].get<float>();
-    velocity["y"] = velocity["y"].get<float>() + message["y"].get<float>();
-    velocity["z"] = velocity["z"].get<float>() + message["z"].get<float>();
+    int &entity_id = *(int *)message["entity_id"];
+    Json &velocity = *(Json *)entities[entity_id]["velocity"];
+
+    *(float *)velocity["x"] += *(float *)message["x"];
+    *(float *)velocity["y"] += *(float *)message["y"];
+    *(float *)velocity["z"] += *(float *)message["z"];
   }
 }

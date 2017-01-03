@@ -1,3 +1,6 @@
+#ifndef _PHYSICS_HPP
+#define _PHYSICS_HPP
+
 #include <OpenCGE/system.hpp>
 
 namespace OpenCGE
@@ -6,9 +9,11 @@ namespace OpenCGE
   {
   public:
     Physics();
-    void positionUpdate(json const& message);
-    void torqueApply(json const& message);
-    void update(json const& message);
-    void velocityApply(json const& message);
+    void positionUpdate(Json & message);
+    void torqueApply(Json & message);
+    void update(Json & message);
+    void velocityApply(Json & message);
   };
 }
+
+#endif

@@ -4,10 +4,12 @@
   using std::chrono::high_resolution_clock;
   using std::chrono::milliseconds;
   using std::chrono::time_point;
-#include "../../engine/system.hpp"
-#include "../../systems/graphics_ncurses.hpp"
-#include "../../systems/physics.hpp"
-  using namespace OpenCGE;
+#include <OpenCGE/system.hpp>
+  using OpenCGE::System;
+#include <OpenCGE/physics.hpp>
+  using OpenCGE::Physics;
+#include <OpenCGE/graphics_ncurses.hpp>
+  using OpenCGE::GraphicsNcurses;
 
 int main()
 {

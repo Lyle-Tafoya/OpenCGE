@@ -15,26 +15,34 @@
   using boost::filesystem::directory_iterator;
 #include <OpenCGE/system.hpp>
 
+
 namespace OpenCGE
 {
-  unordered_map<string,vector<function<void(json const&)>>> System::callback_registry;
+  unordered_map<string,vector<function<void(Json &)>>> System::callback_registry;
   unordered_map<string,vector<System *>> System::component_registry;
-  unordered_map<string,json> System::component_templates;
+  unordered_map<string,Json *> System::component_templates;
   size_t System::entity_count = 0;
   unordered_map<size_t,vector<System *>> System::entity_registry;
-  unordered_map<string,json> System::entity_templates;
+  unordered_map<string,Json *> System::entity_templates;
 
-  void System::callbackTrigger(json const& message)
+  void System::callbackTrigger(Json & message)
   {
-    for(auto callback_method : callback_registry[message["type_id"]])
+    string *message_type = (string *)message["type_id"];
+    for(auto callback_method : callback_registry[*message_type])
     {
       callback_method(message);
     }
   }
 
+  void System::callbackTrigger(json const& message)
+  {
+    callbackTrigger(jsonConvert(message));
+  }
+
   void System::componentCreate(string const& component_name, size_t entity_id)
   {
-    json *new_component = new json(component_templates[component_name]);
+    Json *new_component = new Json();
+    *new_component = *component_templates[component_name];
     for(System *system : component_registry[component_name])
     {
       system->componentAdd(component_name, new_component, entity_id);
@@ -59,7 +67,7 @@ namespace OpenCGE
     ifstream file(file_path);
     json j;
     file >> j;
-    component_templates[component_name] = j;
+    component_templates[component_name] = &System::jsonConvert(j);
   }
 
   void System::componentUnload(string const& component_name)
@@ -74,11 +82,6 @@ namespace OpenCGE
     {
       System::componentLoad(dir_entry.path().string());
     }
-  }
-
-  void System::componentsUnload()
-  {
-    component_templates.clear();
   }
 
   void System::entitiesLoad(string const& directory_path)
@@ -99,7 +102,9 @@ namespace OpenCGE
   {
     size_t entity_id = entity_count++;
     unordered_set<System *> entity_systems_set;
-    for(string component_name : entity_templates[entity_name]["components"])
+    Json &entity_definition = *entity_templates[entity_name];
+    vector<string> &components = *(vector<string> *)entity_definition["components"];
+    for(string component_name : components)
     {
       for(System *system : component_registry[component_name])
       {
@@ -132,7 +137,7 @@ namespace OpenCGE
     ifstream file(file_path);
     json j;
     file >> j;
-    entity_templates[entity_name] = j;
+    entity_templates[entity_name] = &System::jsonConvert(j);
   }
 
   void System::entityUnload(string const& entity_name)
@@ -140,9 +145,10 @@ namespace OpenCGE
     entity_templates.erase(entity_name);
   }
 
-  void System::componentAdd(string const& component_name, json * component, size_t entity_id)
+  void System::componentAdd(string const& component_name, Json * component, size_t entity_id)
   {
     entities[entity_id][component_name] = component;
+    //(*entities[entity_id])[component_name] = component;
   }
 
   void System::componentRemove(string const& component_name, size_t entity_id)
@@ -162,5 +168,72 @@ namespace OpenCGE
       component_registry[component_name].push_back(this);
     }
   }
-}
 
+  Json & System::jsonConvert(json const& j)
+  {
+    Json *result = new Json();
+    for(json::const_iterator node = j.begin(); node != j.end(); ++node)
+    {
+      void *value = nullptr;
+      switch(node.value().type())
+      {
+        case json::value_t::string:
+          value = new string(node.value().get<string>());
+          break;
+        case json::value_t::boolean:
+          value = new bool(node.value().get<bool>());
+          break;
+        case json::value_t::array:
+          switch(node.value().begin().value().type())
+          {
+            case json::value_t::string:
+              value = new vector<string>();
+              for(json::const_iterator it = node.value().begin(); it != node.value().end(); ++it)
+              {
+                ((vector<string> *)value)->push_back(it.value().get<string>());
+              }
+              break;
+            case json::value_t::boolean:
+              continue;
+              value = new vector<bool>();
+              break;
+            case json::value_t::number_integer:
+              continue;
+              value = new vector<int>();
+              break;
+            case json::value_t::number_float:
+              continue;
+              value = new vector<float>();
+              break;
+            case json::value_t::object:
+              continue;
+            case json::value_t::null:
+              continue;
+            case json::value_t::array:
+              continue;
+            case json::value_t::discarded:
+              continue;
+          }
+          break;
+        case json::value_t::number_integer:
+          value = new int(node.value().get<int>());
+          break;
+        case json::value_t::number_float:
+          value = new float(node.value().get<float>());
+          break;
+        case json::value_t::object:
+          value = &jsonConvert(node.value());
+          break;
+        case json::value_t::null:
+          value = nullptr;
+          break;
+        case json::value_t::discarded:
+          continue;
+      }
+      (*result)[node.key()] = value;
+    }
+
+    return *result;
+  }
+
+}

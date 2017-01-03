@@ -25,3 +25,11 @@ Default/
 /OpenGL Legacy System Release/
 /Physics System Release/
 /lib/
+/opencge-system/
+/opencge-system-debug/
+/opencge-physics-debug/
+/opencge-opengl-legacy-debug/
+/opencge-ncurses-debug/
+/opencge-physics/
+/opencge-ncurses/
+/opencge-opengl-legacy/

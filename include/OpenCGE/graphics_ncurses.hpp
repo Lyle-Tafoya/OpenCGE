@@ -1,3 +1,6 @@
+#ifndef _GRAPHICS_NCURSES_HPP
+#define _GRAPHICS_NCURSES_HPP
+
 #include <OpenCGE/system.hpp>
 #include <ncurses.h>
 
@@ -7,10 +10,12 @@ namespace OpenCGE
   {
   public:
     GraphicsNcurses();
-    void sceneUpdate(json const& message);
-    void update(json const& message);
-    void shutdown(json const& message);
+    void sceneUpdate(Json & message);
+    void update(Json & message);
+    void shutdown(Json & message);
   private:
     WINDOW *screen;
   };
 }
+
+#endif

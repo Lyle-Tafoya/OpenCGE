@@ -1,45 +1,38 @@
 #include <fstream>
-  using std::ifstream;
 #include <unordered_set>
-  using std::unordered_set;
 #include <boost/algorithm/string.hpp>
-  using boost::split;
-  using boost::is_any_of;
 #include <boost/regex.hpp>
-  using boost::regex;
 #include <boost/algorithm/string/regex.hpp>
-  using boost::split_regex;
 #include <boost/filesystem.hpp>
-  using boost::make_iterator_range;
-  using boost::filesystem::path;
-  using boost::filesystem::directory_iterator;
 #include <OpenCGE/system.hpp>
-
 
 namespace OpenCGE
 {
-  unordered_map<string,vector<function<void(Json &)>>> System::callback_registry;
-  unordered_map<string,vector<System *>> System::component_registry;
-  unordered_map<string,Json *> System::component_templates;
+  std::unordered_map<std::string,std::vector<std::function<void(Json &)>>> System::callback_registry;
+  std::unordered_map<std::string,std::vector<System *>> System::component_registry;
+  std::unordered_map<std::string,Json *> System::component_templates;
   size_t System::entity_count = 0;
-  unordered_map<size_t,vector<System *>> System::entity_registry;
-  unordered_map<string,Json *> System::entity_templates;
+  std::unordered_map<size_t,std::vector<System *>> System::entity_registry;
+  std::unordered_map<std::string,Json *> System::entity_templates;
+  std::chrono::high_resolution_clock System::timer;
+  std::chrono::time_point<std::chrono::system_clock> System::previous_time;
+  std::chrono::time_point<std::chrono::system_clock> System::current_time;
 
   void System::callbackTrigger(Json & message)
   {
-    string *message_type = (string *)message["type_id"];
+    std::string *message_type = (std::string *)message["type_id"];
     for(auto callback_method : callback_registry[*message_type])
     {
       callback_method(message);
     }
   }
 
-  void System::callbackTrigger(json const& message)
+  void System::callbackTrigger(nlohmann::json const& message)
   {
     callbackTrigger(jsonConvert(message));
   }
 
-  void System::componentCreate(string const& component_name, size_t entity_id)
+  void System::componentCreate(std::string const& component_name, size_t entity_id)
   {
     Json *new_component = new Json();
     *new_component = *component_templates[component_name];
@@ -49,7 +42,7 @@ namespace OpenCGE
     }
   }
 
-  void System::componentDelete(string const& component_name, size_t entity_id)
+  void System::componentDelete(std::string const& component_name, size_t entity_id)
   {
     for(System *system : component_registry[component_name])
     {
@@ -57,37 +50,37 @@ namespace OpenCGE
     }
   }
 
-  void System::componentLoad(string const& file_path)
+  void System::componentLoad(std::string const& file_path)
   {
-    vector<string> fields;
-    split_regex(fields, file_path, regex("\\.json"));
-    string component_name = fields.front();
-    split(fields, component_name, is_any_of("/"));
+    std::vector<std::string> fields;
+    boost::split_regex(fields, file_path, boost::regex("\\.json"));
+    std::string component_name = fields.front();
+    boost::split(fields, component_name, boost::is_any_of("/"));
     component_name = fields.back();
-    ifstream file(file_path);
-    json j;
+    std::ifstream file(file_path);
+    nlohmann::json j;
     file >> j;
     component_templates[component_name] = &System::jsonConvert(j);
   }
 
-  void System::componentUnload(string const& component_name)
+  void System::componentUnload(std::string const& component_name)
   {
     component_templates.erase(component_name);
   }
 
-  void System::componentsLoad(string const& directory_path)
+  void System::componentsLoad(std::string const& directory_path)
   {
-    path component_directory(directory_path);
-    for(auto &dir_entry : make_iterator_range(directory_iterator(component_directory), {}))
+    boost::filesystem::path component_directory(directory_path);
+    for(auto &dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(component_directory), {}))
     {
       System::componentLoad(dir_entry.path().string());
     }
   }
 
-  void System::entitiesLoad(string const& directory_path)
+  void System::entitiesLoad(std::string const& directory_path)
   {
-    path entity_directory(directory_path);
-    for(auto &dir_entry : make_iterator_range(directory_iterator(entity_directory), {}))
+    boost::filesystem::path entity_directory(directory_path);
+    for(auto &dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(entity_directory), {}))
     {
       System::entityLoad(dir_entry.path().string());
     }
@@ -98,13 +91,13 @@ namespace OpenCGE
     entity_templates.clear();
   }
 
-  size_t System::entityCreate(string const& entity_name)
+  size_t System::entityCreate(std::string const& entity_name)
   {
     size_t entity_id = entity_count++;
-    unordered_set<System *> entity_systems_set;
+    std::unordered_set<System *> entity_systems_set;
     Json &entity_definition = *entity_templates[entity_name];
-    vector<string> &components = *(vector<string> *)entity_definition["components"];
-    for(string component_name : components)
+    std::vector<std::string> &components = *(std::vector<std::string> *)entity_definition["components"];
+    for(std::string component_name : components)
     {
       for(System *system : component_registry[component_name])
       {
@@ -112,7 +105,7 @@ namespace OpenCGE
       }
       System::componentCreate(component_name, entity_id);
     }
-    vector<System *> entity_systems(entity_systems_set.begin(), entity_systems_set.end());
+    std::vector<System *> entity_systems(entity_systems_set.begin(), entity_systems_set.end());
     entity_registry[entity_id] = entity_systems;
 
     return entity_id;
@@ -127,31 +120,31 @@ namespace OpenCGE
     entity_registry.erase(entity_id);
   }
 
-  void System::entityLoad(string const& file_path)
+  void System::entityLoad(std::string const& file_path)
   {
-    vector<string> fields;
-    split_regex(fields, file_path, regex("\\.json"));
-    string entity_name = fields.front();
-    split(fields, entity_name, is_any_of("/"));
+    std::vector<std::string> fields;
+    boost::split_regex(fields, file_path, boost::regex("\\.json"));
+    std::string entity_name = fields.front();
+    boost::split(fields, entity_name, boost::is_any_of("/"));
     entity_name = fields.back();
-    ifstream file(file_path);
-    json j;
+    std::ifstream file(file_path);
+    nlohmann::json j;
     file >> j;
     entity_templates[entity_name] = &System::jsonConvert(j);
   }
 
-  void System::entityUnload(string const& entity_name)
+  void System::entityUnload(std::string const& entity_name)
   {
     entity_templates.erase(entity_name);
   }
 
-  void System::componentAdd(string const& component_name, Json * component, size_t entity_id)
+  void System::componentAdd(std::string const& component_name, Json * component, size_t entity_id)
   {
     entities[entity_id][component_name] = component;
     //(*entities[entity_id])[component_name] = component;
   }
 
-  void System::componentRemove(string const& component_name, size_t entity_id)
+  void System::componentRemove(std::string const& component_name, size_t entity_id)
   {
     entities[entity_id].erase(component_name);
   }
@@ -161,73 +154,86 @@ namespace OpenCGE
     entities.erase(entity_id);
   }
 
-  void System::componentsRegister(vector<string> const& valid_components)
+  void System::componentsRegister(std::vector<std::string> const& valid_components)
   {
-    for(string component_name : valid_components)
+    for(std::string component_name : valid_components)
     {
       component_registry[component_name].push_back(this);
     }
   }
 
-  Json & System::jsonConvert(json const& j)
+  float System::getTimeDelta()
+  {
+    previous_time = current_time;
+    current_time = timer.now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(current_time - previous_time).count() / 1000.f;
+  }
+
+  void System::timerStart()
+  {
+    previous_time = timer.now();
+    current_time = previous_time;
+  }
+
+  Json & System::jsonConvert(nlohmann::json const& j)
   {
     Json *result = new Json();
-    for(json::const_iterator node = j.begin(); node != j.end(); ++node)
+    for(nlohmann::json::const_iterator node = j.begin(); node != j.end(); ++node)
     {
       void *value = nullptr;
       switch(node.value().type())
       {
-        case json::value_t::string:
-          value = new string(node.value().get<string>());
+        case nlohmann::json::value_t::string:
+          value = new std::string(node.value().get<std::string>());
           break;
-        case json::value_t::boolean:
+        case nlohmann::json::value_t::boolean:
           value = new bool(node.value().get<bool>());
           break;
-        case json::value_t::array:
+        case nlohmann::json::value_t::array:
           switch(node.value().begin().value().type())
           {
-            case json::value_t::string:
-              value = new vector<string>();
-              for(json::const_iterator it = node.value().begin(); it != node.value().end(); ++it)
+            case nlohmann::json::value_t::string:
+              value = new std::vector<std::string>();
+              for(nlohmann::json::const_iterator it = node.value().begin(); it != node.value().end(); ++it)
               {
-                ((vector<string> *)value)->push_back(it.value().get<string>());
+                ((std::vector<std::string> *)value)->push_back(it.value().get<std::string>());
               }
               break;
-            case json::value_t::boolean:
+            case nlohmann::json::value_t::boolean:
               continue;
-              value = new vector<bool>();
+              value = new std::vector<bool>();
               break;
-            case json::value_t::number_integer:
+            case nlohmann::json::value_t::number_integer:
               continue;
-              value = new vector<int>();
+              value = new std::vector<int>();
               break;
-            case json::value_t::number_float:
+            case nlohmann::json::value_t::number_float:
               continue;
-              value = new vector<float>();
+              value = new std::vector<float>();
               break;
-            case json::value_t::object:
+            case nlohmann::json::value_t::object:
               continue;
-            case json::value_t::null:
+            case nlohmann::json::value_t::null:
               continue;
-            case json::value_t::array:
+            case nlohmann::json::value_t::array:
               continue;
-            case json::value_t::discarded:
+            case nlohmann::json::value_t::discarded:
               continue;
           }
           break;
-        case json::value_t::number_integer:
+        case nlohmann::json::value_t::number_integer:
           value = new int(node.value().get<int>());
           break;
-        case json::value_t::number_float:
+        case nlohmann::json::value_t::number_float:
           value = new float(node.value().get<float>());
           break;
-        case json::value_t::object:
+        case nlohmann::json::value_t::object:
           value = &jsonConvert(node.value());
           break;
-        case json::value_t::null:
+        case nlohmann::json::value_t::null:
           value = nullptr;
           break;
-        case json::value_t::discarded:
+        case nlohmann::json::value_t::discarded:
           continue;
       }
       (*result)[node.key()] = value;

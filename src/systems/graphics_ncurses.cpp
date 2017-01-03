@@ -17,25 +17,25 @@ namespace OpenCGE
   {
     int &entity_id = *(int *)message["entity_id"];
     Json &scene_ncurses = *(Json *)entities[entity_id]["scene_ncurses"];
-    *(string *)scene_ncurses["string"] = *(string *)message["string"];
+    *(std::string *)scene_ncurses["string"] = *(std::string *)message["string"];
   }
 
   void GraphicsNcurses::update(Json & message)
   {
     for(auto entity : entities)
     {
-      unordered_map<string, Json *> &components = entity.second;
+      std::unordered_map<std::string, Json *> &components = entity.second;
       Json &position = *components["position"];
       Json &scene_ncurses = *components["scene_ncurses"];
-      mvwaddstr(screen, *(int *)position["y"], *(int *)position["x"], ((string *)scene_ncurses["string"])->c_str());
+      mvwaddstr(screen, *(int *)position["y"], *(int *)position["x"], ((std::string *)scene_ncurses["string"])->c_str());
     }
     wrefresh(screen);
     for(auto entity : entities)
     {
-      unordered_map<string, Json *> &components = entity.second;
+      std::unordered_map<std::string, Json *> &components = entity.second;
       Json &position = *components["position"];
       Json &scene_ncurses = *components["scene_ncurses"];
-      string empty_str(((string *)scene_ncurses["string"])->size(), ' ');
+      std::string empty_str(((std::string *)scene_ncurses["string"])->size(), ' ');
       mvwaddstr(screen, *(int *)position["y"], *(int *)position["x"], empty_str.c_str());
     }
   }

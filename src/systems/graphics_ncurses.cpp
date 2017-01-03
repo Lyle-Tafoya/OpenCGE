@@ -20,7 +20,7 @@ namespace OpenCGE
     *(std::string *)scene_ncurses["string"] = *(std::string *)message["string"];
   }
 
-  void GraphicsNcurses::update(Json & message)
+  void GraphicsNcurses::update(Json &)
   {
     for(auto entity : entities)
     {
@@ -40,7 +40,7 @@ namespace OpenCGE
     }
   }
 
-  void GraphicsNcurses::shutdown(Json & message)
+  void GraphicsNcurses::shutdown(Json &)
   {
     endwin();
   }

@@ -76,7 +76,7 @@ namespace OpenCGE
     scene_data = (aiScene *)scene_3d["scene_data"];
   }
 
-  void GraphicsOpenGLLegacy::update(Json & message)
+  void GraphicsOpenGLLegacy::update(Json &)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for(auto entity : entities)
@@ -110,7 +110,7 @@ namespace OpenCGE
     glfwSwapBuffers(window);
   }
 
-  void GraphicsOpenGLLegacy::shutdown(Json & message)
+  void GraphicsOpenGLLegacy::shutdown(Json &)
   {
     glfwTerminate();
     for(auto entry : scene_templates)

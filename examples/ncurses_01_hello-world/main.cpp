@@ -1,6 +1,6 @@
 #include <OpenCGE/system.hpp>
-#include <OpenCGE/physics.hpp>
 #include <OpenCGE/graphics_ncurses.hpp>
+#include <OpenCGE/physics.hpp>
 
 int main()
 {
@@ -9,8 +9,8 @@ int main()
   OpenCGE::System::entitiesLoad("data/entities");
 
   // Instantiate our systems
-  OpenCGE::GraphicsNcurses graphics_system;
   OpenCGE::Physics physics_system;
+  OpenCGE::GraphicsNcurses graphics_system;
 
   // Create a new entity
   size_t entity_id = OpenCGE::System::entityCreate("object_ncurses");

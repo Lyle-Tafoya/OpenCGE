@@ -1,18 +1,34 @@
-## OpenCGE
+## Description
 
-OpenCGE 3D game engine using component-based design in C++. While the libraries being used are all cross platform, I only intend to officially support SteamOS and other GNU/Linux operating systems during early development stages. Compile on Windows or OSX at your own risk.
+OpenCGE is a 3D game engine using component-based design with event-based messaging. It is programmed in C++11. The primary goals of this project are as follows:
 
-### Current State
+* Game development solution which places a priority on SteamOS/Linux support
+* Modular design
+* Vulkan API support
+* Virtual reality support
+* Easy Steam integration
 
-Currently this project is in it's early infancy and as such is not useable. I will continue to add more features and update this README as I go.
+## Current State
 
-### Dependencies
+Currently the core framework is functional and a basic proof of concept has been completed for multiple modules. Please see the examples for current usage. This project is still in early development stages and as such is not yet recommended for serious game development. Features may be added/removed at any time and backwards compatibility will not be guaranteed prior to the future 1.0 release. I will try to keep this README updated as I go.
 
-Here are the dependencies I am developing with:
-```
-GLFW (Simplifies window creation and input handling)
-GLM (for dealing with matrices)
-Assimp (for loading various 3D model formats)
-Boost
-OpenAL (for sound)
-```
+## Dependencies
+
+OpenCGE is modular by design and you will need different dependencies installed depending on which module(s) you wish to use. The core framework is provided by opencge-system and is required by all the modules. 
+
+### Core Framework
+
+**opencge-system**
+
+* Boost
+
+### Modules
+
+**opencge-graphics-opengl-legacy**
+
+* GLFW
+* Assimp
+
+**opencge-graphics-ncurses**
+
+* ncurses

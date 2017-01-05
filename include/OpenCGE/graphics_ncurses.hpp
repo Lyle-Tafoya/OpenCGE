@@ -10,9 +10,9 @@ namespace OpenCGE
   {
   public:
     GraphicsNcurses();
-    void sceneUpdate(Json & message);
-    void update(Json & message);
-    void shutdown(Json & message);
+    void sceneUpdate(untyped_map & message);
+    void update(untyped_map & message);
+    void shutdown(untyped_map & message);
   private:
     WINDOW *screen;
   };

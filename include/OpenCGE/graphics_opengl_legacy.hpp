@@ -15,9 +15,9 @@ namespace OpenCGE
     GraphicsOpenGLLegacy();
     void sceneLoad(std::string const& file_path);
     void scenesLoad(std::string const& directory_path);
-    void sceneUpdate(Json & message);
-    void shutdown(Json & message);
-    void update(Json & message);
+    void sceneUpdate(untyped_map & message);
+    void shutdown(untyped_map & message);
+    void update(untyped_map & message);
     void windowResize(int width, int height);
   private:
     GLFWwindow *window;

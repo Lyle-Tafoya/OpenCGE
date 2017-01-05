@@ -60,11 +60,11 @@ namespace OpenCGE
     }
   }
 
-  void GraphicsOpenGLLegacy::sceneUpdate(Json & message)
+  void GraphicsOpenGLLegacy::sceneUpdate(untyped_map & message)
   {
     int &entity_id = *(int *)message["entity_id"];
-    std::unordered_map<std::string, Json *> &entity = entities[entity_id];
-    Json &scene_3d = *(Json *)entity["scene_3d"];
+    std::unordered_map<std::string, untyped_map *> &entity = entities[entity_id];
+    untyped_map &scene_3d = *(untyped_map *)entity["scene_3d"];
     aiScene *scene_data = (aiScene *)scene_3d["scene_data"];
     if(scene_data == nullptr)
     {
@@ -76,21 +76,21 @@ namespace OpenCGE
     scene_data = (aiScene *)scene_3d["scene_data"];
   }
 
-  void GraphicsOpenGLLegacy::update(Json &)
+  void GraphicsOpenGLLegacy::update(untyped_map &)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for(auto entity : entities)
     {
-      std::unordered_map<std::string,Json *> &components = entity.second;
+      std::unordered_map<std::string,untyped_map *> &components = entity.second;
       glPushMatrix();
-      Json &position = *(Json *)components["position"];
+      untyped_map &position = *(untyped_map *)components["position"];
       glTranslatef(*(float *)position["x"], *(float *)position["y"], *(float *)position["z"]);
-      Json &orientation = *(Json *)components["orientation"];
+      untyped_map &orientation = *(untyped_map *)components["orientation"];
       glRotatef(*(float *)orientation["pitch"], 1, 0, 0);
       glRotatef(*(float *)orientation["yaw"], 0, 1, 0);
       glRotatef(*(float *)orientation["roll"], 0, 0, 1);
 
-      Json &scene_3d = *(Json *)components["scene_3d"];
+      untyped_map &scene_3d = *(untyped_map *)components["scene_3d"];
       aiScene *scene_data = (aiScene *)scene_3d["scene_data"];
 
       for(size_t mesh_num = 0; mesh_num < scene_data->mNumMeshes; ++mesh_num)
@@ -110,7 +110,7 @@ namespace OpenCGE
     glfwSwapBuffers(window);
   }
 
-  void GraphicsOpenGLLegacy::shutdown(Json &)
+  void GraphicsOpenGLLegacy::shutdown(untyped_map &)
   {
     glfwTerminate();
     for(auto entry : scene_templates)

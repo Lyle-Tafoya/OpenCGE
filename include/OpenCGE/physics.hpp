@@ -9,10 +9,10 @@ namespace OpenCGE
   {
   public:
     Physics();
-    void positionUpdate(Json & message);
-    void torqueApply(Json & message);
-    void update(Json & message);
-    void velocityApply(Json & message);
+    void positionUpdate(untyped_map & message);
+    void torqueApply(untyped_map & message);
+    void update(untyped_map & message);
+    void velocityApply(untyped_map & message);
   };
 }
 

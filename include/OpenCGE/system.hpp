@@ -11,12 +11,12 @@
 
 namespace OpenCGE
 {
-  typedef std::unordered_map<std::string,void *> Json;
+  typedef std::unordered_map<std::string,void *> untyped_map;
 
   class System
   {
   public:
-    static void callbackTrigger(Json & message);
+    static void callbackTrigger(untyped_map & message);
     static void callbackTrigger(nlohmann::json const& message);
     static void componentCreate(std::string const& component_name, size_t entity_id);
     static void componentDelete(std::string const& component_name, size_t entity_id);
@@ -39,22 +39,22 @@ namespace OpenCGE
     {
       callback_registry[message_type].push_back(std::bind(method, object, std::placeholders::_1));
     }
-    void componentAdd(std::string const& component_name, Json * component, size_t entity_id);
+    void componentAdd(std::string const& component_name, untyped_map * component, size_t entity_id);
     void componentRemove(std::string const& component_name, size_t entity_id);
     void componentsRegister(std::vector<std::string> const& valid_components);
     void entityRemove(size_t entity_id);
 
-    std::unordered_map<size_t,std::unordered_map<std::string,Json *>> entities;
+    std::unordered_map<size_t,std::unordered_map<std::string,untyped_map *>> entities;
 
   private:
-    static Json & jsonConvert(nlohmann::json const& j);
+    static untyped_map & jsonConvert(nlohmann::json const& j);
 
     static std::unordered_map<std::string,size_t> message_registry;
-    static std::unordered_map<std::string,std::vector<std::function<void(Json &)>>> callback_registry;
+    static std::unordered_map<std::string,std::vector<std::function<void(untyped_map &)>>> callback_registry;
     static std::unordered_map<std::string,std::vector<System *>> component_registry;
-    static std::unordered_map<std::string,Json *> component_templates;
+    static std::unordered_map<std::string,untyped_map *> component_templates;
     static std::unordered_map<size_t,std::vector<System *>> entity_registry;
-    static std::unordered_map<std::string,Json *> entity_templates;
+    static std::unordered_map<std::string,untyped_map *> entity_templates;
     static std::chrono::high_resolution_clock timer;
     static std::chrono::time_point<std::chrono::system_clock> previous_time;
     static std::chrono::time_point<std::chrono::system_clock> current_time;

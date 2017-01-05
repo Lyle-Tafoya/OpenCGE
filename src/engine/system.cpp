@@ -8,17 +8,17 @@
 
 namespace OpenCGE
 {
-  std::unordered_map<std::string,std::vector<std::function<void(Json &)>>> System::callback_registry;
+  std::unordered_map<std::string,std::vector<std::function<void(untyped_map &)>>> System::callback_registry;
   std::unordered_map<std::string,std::vector<System *>> System::component_registry;
-  std::unordered_map<std::string,Json *> System::component_templates;
+  std::unordered_map<std::string,untyped_map *> System::component_templates;
   std::unordered_map<size_t,std::vector<System *>> System::entity_registry;
-  std::unordered_map<std::string,Json *> System::entity_templates;
+  std::unordered_map<std::string,untyped_map *> System::entity_templates;
   std::chrono::high_resolution_clock System::timer;
   std::chrono::time_point<std::chrono::system_clock> System::previous_time;
   std::chrono::time_point<std::chrono::system_clock> System::current_time;
   ReusableId System::entity_id_generator;
 
-  void System::callbackTrigger(Json & message)
+  void System::callbackTrigger(untyped_map & message)
   {
     std::string *message_type = (std::string *)message["type_id"];
     for(auto callback_method : callback_registry[*message_type])
@@ -34,7 +34,7 @@ namespace OpenCGE
 
   void System::componentCreate(std::string const& component_name, size_t entity_id)
   {
-    Json *new_component = new Json();
+    untyped_map *new_component = new untyped_map();
     *new_component = *component_templates[component_name];
     for(System *system : component_registry[component_name])
     {
@@ -95,7 +95,7 @@ namespace OpenCGE
   {
     size_t entity_id = entity_id_generator.getId();
     std::unordered_set<System *> entity_systems_set;
-    Json &entity_definition = *entity_templates[entity_name];
+    untyped_map &entity_definition = *entity_templates[entity_name];
     std::vector<std::string> &components = *(std::vector<std::string> *)entity_definition["components"];
     for(std::string component_name : components)
     {
@@ -138,7 +138,7 @@ namespace OpenCGE
     entity_templates.erase(entity_name);
   }
 
-  void System::componentAdd(std::string const& component_name, Json * component, size_t entity_id)
+  void System::componentAdd(std::string const& component_name, untyped_map * component, size_t entity_id)
   {
     entities[entity_id][component_name] = component;
     //(*entities[entity_id])[component_name] = component;
@@ -175,9 +175,9 @@ namespace OpenCGE
     current_time = previous_time;
   }
 
-  Json & System::jsonConvert(nlohmann::json const& j)
+  untyped_map & System::jsonConvert(nlohmann::json const& j)
   {
-    Json *result = new Json();
+    untyped_map *result = new untyped_map();
     for(nlohmann::json::const_iterator node = j.begin(); node != j.end(); ++node)
     {
       void *value = nullptr;

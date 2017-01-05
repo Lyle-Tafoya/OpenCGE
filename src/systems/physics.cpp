@@ -5,31 +5,39 @@ namespace OpenCGE
 
   Physics::Physics()
   {
-    componentsRegister({"orientation", "position", "torque", "velocity"});
+    componentRegister("orientation", &createPoint3D);
+    componentRegister("position", &createPoint3D);
+    componentRegister("torque", &createPoint3D);
+    componentRegister("velocity", &createPoint3D);
     callbackRegister("position_update", &Physics::positionUpdate, this);
     callbackRegister("torque_apply", &Physics::torqueApply, this);
     callbackRegister("time_passed", &Physics::update, this);
     callbackRegister("velocity_apply", &Physics::velocityApply, this);
   }
 
+  void * Physics::createPoint3D()
+  {
+    return new Components::Point3D();
+  }
+
   void Physics::positionUpdate(untyped_map & message)
   {
     int &entity_id = *(int *)message["entity_id"];
-    untyped_map &position = *(untyped_map *)entities[entity_id]["position"];
+    auto &position = *(Components::Point3D *)entities[entity_id]["position"];
 
-    *(float *)position["x"] = *(float *)message["x"];
-    *(float *)position["y"] = *(float *)message["y"];
-    *(float *)position["z"] = *(float *)message["z"];
+    position.x = *(float *)message["x"];
+    position.y = *(float *)message["y"];
+    position.z = *(float *)message["z"];
   }
 
   void Physics::torqueApply(untyped_map & message)
   {
     int &entity_id = *(int *)message["entity_id"];
-    untyped_map &torque = *(untyped_map *)entities[entity_id]["torque"];
+    auto &torque = *(Components::Point3D *)entities[entity_id]["torque"];
 
-    *(float *)torque["pitch"] += *(float *)message["x"];
-    *(float *)torque["roll"] += *(float *)message["y"];
-    *(float *)torque["yaw"] += *(float *)message["z"];
+    torque.x += *(float *)message["x"];
+    torque.y += *(float *)message["y"];
+    torque.z += *(float *)message["z"];
   }
 
   void Physics::update(untyped_map & message)
@@ -37,29 +45,29 @@ namespace OpenCGE
     float &time_delta = *(float *)message["time_delta"];
     for(auto entity : entities)
     {
-      std::unordered_map<std::string,untyped_map *> &components = entity.second;
+      std::unordered_map<std::string,void *> &components = entity.second;
 
-      untyped_map &position = *(untyped_map *)components["position"];
-      untyped_map &velocity = *(untyped_map *)components["velocity"];
-      *(float *)position["x"] += *(float *)velocity["x"] * time_delta;
-      *(float *)position["y"] += *(float *)velocity["y"] * time_delta;
-      *(float *)position["z"] += *(float *)velocity["z"] * time_delta;
+      auto &position = *(Components::Point3D *)components["position"];
+      auto &velocity = *(Components::Point3D *)components["velocity"];
+      position.x += velocity.x * time_delta;
+      position.y += velocity.y * time_delta;
+      position.z += velocity.z * time_delta;
 
-      untyped_map &orientation = *(untyped_map *)components["orientation"];
-      untyped_map &torque = *(untyped_map *)components["torque"];
-      *(float *)orientation["pitch"] += *(float *)torque["pitch"] * time_delta;
-      *(float *)orientation["roll"] += *(float *)torque["roll"] * time_delta;
-      *(float *)orientation["yaw"] += *(float *)torque["yaw"] * time_delta;
+      auto &orientation = *(Components::Point3D *)components["orientation"];
+      auto &torque = *(Components::Point3D *)components["torque"];
+      orientation.x += torque.x * time_delta;
+      orientation.y += torque.y * time_delta;
+      orientation.z += torque.z * time_delta;
     }
   }
 
   void Physics::velocityApply(untyped_map & message)
   {
     int &entity_id = *(int *)message["entity_id"];
-    untyped_map &velocity = *(untyped_map *)entities[entity_id]["velocity"];
+    auto &velocity = *(Components::Point3D *)entities[entity_id]["velocity"];
 
-    *(float *)velocity["x"] += *(float *)message["x"];
-    *(float *)velocity["y"] += *(float *)message["y"];
-    *(float *)velocity["z"] += *(float *)message["z"];
+    velocity.x += *(float *)message["x"];
+    velocity.y += *(float *)message["y"];
+    velocity.z += *(float *)message["z"];
   }
 }

@@ -9,8 +9,8 @@
 namespace OpenCGE
 {
   std::unordered_map<std::string,std::vector<std::function<void(untyped_map &)>>> System::callback_registry;
+  std::unordered_map<std::string,std::function<void *()>> System::component_factory;
   std::unordered_map<std::string,std::vector<System *>> System::component_registry;
-  std::unordered_map<std::string,untyped_map *> System::component_templates;
   std::unordered_map<size_t,std::vector<System *>> System::entity_registry;
   std::unordered_map<std::string,untyped_map *> System::entity_templates;
   std::chrono::high_resolution_clock System::timer;
@@ -20,8 +20,8 @@ namespace OpenCGE
 
   void System::callbackTrigger(untyped_map & message)
   {
-    std::string *message_type = (std::string *)message["type_id"];
-    for(auto callback_method : callback_registry[*message_type])
+    std::string &message_type = *(std::string *)message["type_id"];
+    for(auto callback_method : callback_registry[message_type])
     {
       callback_method(message);
     }
@@ -34,8 +34,7 @@ namespace OpenCGE
 
   void System::componentCreate(std::string const& component_name, size_t entity_id)
   {
-    untyped_map *new_component = new untyped_map();
-    *new_component = *component_templates[component_name];
+    void *new_component = component_factory[component_name]();
     for(System *system : component_registry[component_name])
     {
       system->componentAdd(component_name, new_component, entity_id);
@@ -50,31 +49,10 @@ namespace OpenCGE
     }
   }
 
-  void System::componentLoad(std::string const& file_path)
+  void System::componentRegister(std::string const& component_name, void *(*method)())
   {
-    std::vector<std::string> fields;
-    boost::split_regex(fields, file_path, boost::regex("\\.json"));
-    std::string component_name = fields.front();
-    boost::split(fields, component_name, boost::is_any_of("/"));
-    component_name = fields.back();
-    std::ifstream file(file_path);
-    nlohmann::json j;
-    file >> j;
-    component_templates[component_name] = &System::jsonConvert(j);
-  }
-
-  void System::componentUnload(std::string const& component_name)
-  {
-    component_templates.erase(component_name);
-  }
-
-  void System::componentsLoad(std::string const& directory_path)
-  {
-    boost::filesystem::path component_directory(directory_path);
-    for(auto &dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(component_directory), {}))
-    {
-      System::componentLoad(dir_entry.path().string());
-    }
+    component_factory[component_name] = *method;
+    component_registry[component_name].push_back(this);
   }
 
   void System::entitiesLoad(std::string const& directory_path)
@@ -138,10 +116,9 @@ namespace OpenCGE
     entity_templates.erase(entity_name);
   }
 
-  void System::componentAdd(std::string const& component_name, untyped_map * component, size_t entity_id)
+  void System::componentAdd(std::string const& component_name, void * component, size_t entity_id)
   {
     entities[entity_id][component_name] = component;
-    //(*entities[entity_id])[component_name] = component;
   }
 
   void System::componentRemove(std::string const& component_name, size_t entity_id)
@@ -152,14 +129,6 @@ namespace OpenCGE
   void System::entityRemove(size_t entity_id)
   {
     entities.erase(entity_id);
-  }
-
-  void System::componentsRegister(std::vector<std::string> const& valid_components)
-  {
-    for(std::string component_name : valid_components)
-    {
-      component_registry[component_name].push_back(this);
-    }
   }
 
   float System::getTimeDelta()

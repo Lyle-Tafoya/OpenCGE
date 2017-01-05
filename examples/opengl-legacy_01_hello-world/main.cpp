@@ -4,11 +4,8 @@
 
 int main()
 {
-  // Load components and entities
-  OpenCGE::System::componentsLoad("data/components");
-  OpenCGE::System::entitiesLoad("data/entities");
-
   // Instantiate our systems
+  OpenCGE::System::entitiesLoad("data/entities");
   OpenCGE::Physics physics_system;
   OpenCGE::GraphicsOpenGLLegacy graphics_system;
   graphics_system.scenesLoad("assets/models");

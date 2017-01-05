@@ -6,6 +6,8 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <OpenCGE/system.hpp>
+#include <OpenCGE/components/point_3d.hpp>
+#include <OpenCGE/components/scene_3d.hpp>
 
 namespace OpenCGE
 {
@@ -13,6 +15,8 @@ namespace OpenCGE
   {
   public:
     GraphicsOpenGLLegacy();
+    static void * createPoint3D();
+    static void * createScene3D();
     void sceneLoad(std::string const& file_path);
     void scenesLoad(std::string const& directory_path);
     void sceneUpdate(untyped_map & message);

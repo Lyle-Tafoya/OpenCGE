@@ -11,12 +11,12 @@ namespace OpenCGE
   std::unordered_map<std::string,std::vector<std::function<void(Json &)>>> System::callback_registry;
   std::unordered_map<std::string,std::vector<System *>> System::component_registry;
   std::unordered_map<std::string,Json *> System::component_templates;
-  size_t System::entity_count = 0;
   std::unordered_map<size_t,std::vector<System *>> System::entity_registry;
   std::unordered_map<std::string,Json *> System::entity_templates;
   std::chrono::high_resolution_clock System::timer;
   std::chrono::time_point<std::chrono::system_clock> System::previous_time;
   std::chrono::time_point<std::chrono::system_clock> System::current_time;
+  ReusableId System::entity_id_generator;
 
   void System::callbackTrigger(Json & message)
   {
@@ -93,7 +93,7 @@ namespace OpenCGE
 
   size_t System::entityCreate(std::string const& entity_name)
   {
-    size_t entity_id = entity_count++;
+    size_t entity_id = entity_id_generator.getId();
     std::unordered_set<System *> entity_systems_set;
     Json &entity_definition = *entity_templates[entity_name];
     std::vector<std::string> &components = *(std::vector<std::string> *)entity_definition["components"];

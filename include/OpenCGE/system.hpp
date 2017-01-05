@@ -7,6 +7,7 @@
 #include <chrono>
 #include <functional>
 #include <OpenCGE/json.hpp>
+#include <OpenCGE/reusable_id.hpp>
 
 namespace OpenCGE
 {
@@ -52,12 +53,12 @@ namespace OpenCGE
     static std::unordered_map<std::string,std::vector<std::function<void(Json &)>>> callback_registry;
     static std::unordered_map<std::string,std::vector<System *>> component_registry;
     static std::unordered_map<std::string,Json *> component_templates;
-    static size_t entity_count;
     static std::unordered_map<size_t,std::vector<System *>> entity_registry;
     static std::unordered_map<std::string,Json *> entity_templates;
     static std::chrono::high_resolution_clock timer;
     static std::chrono::time_point<std::chrono::system_clock> previous_time;
     static std::chrono::time_point<std::chrono::system_clock> current_time;
+    static ReusableId entity_id_generator;
   };
 }
 

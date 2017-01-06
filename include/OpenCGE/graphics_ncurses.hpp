@@ -14,9 +14,9 @@ namespace OpenCGE
     GraphicsNcurses();
     static void * createPoint3D();
     static void * createSceneNcurses();
-    void sceneUpdate(untyped_map & message);
-    void update(untyped_map & message);
-    void shutdown(untyped_map & message);
+    void sceneUpdate(nlohmann::json const& message);
+    void update(nlohmann::json const& message);
+    void shutdown(nlohmann::json const& message);
   private:
     WINDOW *screen;
   };

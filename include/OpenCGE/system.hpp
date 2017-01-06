@@ -16,8 +16,7 @@ namespace OpenCGE
   class System
   {
   public:
-    static void callbackTrigger(untyped_map & message);
-    static void callbackTrigger(nlohmann::json const& message);
+    static void callbackTrigger(std::string const& message_type, nlohmann::json const& message);
     static void componentCreate(std::string const& component_name, size_t entity_id);
     static void componentDelete(std::string const& component_name, size_t entity_id);
     static void entitiesLoad(std::string const& directory_path);
@@ -46,7 +45,7 @@ namespace OpenCGE
   private:
     static untyped_map & jsonConvert(nlohmann::json const& j);
 
-    static std::unordered_map<std::string,std::vector<std::function<void(untyped_map &)>>> callback_registry;
+    static std::unordered_map<std::string,std::vector<std::function<void(nlohmann::json const&)>>> callback_registry;
     static std::unordered_map<std::string,std::function<void *()>> component_factory;
     static std::unordered_map<std::string,std::vector<System *>> component_registry;
     static std::unordered_map<size_t,std::vector<System *>> entity_registry;

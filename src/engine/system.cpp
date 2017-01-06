@@ -8,7 +8,7 @@
 
 namespace OpenCGE
 {
-  std::unordered_map<std::string,std::vector<std::function<void(untyped_map &)>>> System::callback_registry;
+  std::unordered_map<std::string,std::vector<std::function<void(nlohmann::json const&)>>> System::callback_registry;
   std::unordered_map<std::string,std::function<void *()>> System::component_factory;
   std::unordered_map<std::string,std::vector<System *>> System::component_registry;
   std::unordered_map<size_t,std::vector<System *>> System::entity_registry;
@@ -18,18 +18,12 @@ namespace OpenCGE
   std::chrono::time_point<std::chrono::system_clock> System::current_time;
   ReusableId System::entity_id_generator;
 
-  void System::callbackTrigger(untyped_map & message)
+  void System::callbackTrigger(std::string const& message_type, nlohmann::json const& message)
   {
-    std::string &message_type = *(std::string *)message["type_id"];
     for(auto callback_method : callback_registry[message_type])
     {
       callback_method(message);
     }
-  }
-
-  void System::callbackTrigger(nlohmann::json const& message)
-  {
-    callbackTrigger(jsonConvert(message));
   }
 
   void System::componentCreate(std::string const& component_name, size_t entity_id)

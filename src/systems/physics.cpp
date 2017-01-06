@@ -20,32 +20,32 @@ namespace OpenCGE
     return new Components::Point3D();
   }
 
-  void Physics::positionUpdate(untyped_map & message)
+  void Physics::positionUpdate(nlohmann::json const& message)
   {
-    int &entity_id = *(int *)message["entity_id"];
+    size_t entity_id = message["entity_id"];
     auto &position = *(Components::Point3D *)entities[entity_id]["position"];
 
-    position.x = *(float *)message["x"];
-    position.y = *(float *)message["y"];
-    position.z = *(float *)message["z"];
+    position.x = message["x"];
+    position.y = message["y"];
+    position.z = message["z"];
   }
 
-  void Physics::torqueApply(untyped_map & message)
+  void Physics::torqueApply(nlohmann::json const& message)
   {
-    int &entity_id = *(int *)message["entity_id"];
+    size_t entity_id = message["entity_id"];
     auto &torque = *(Components::Point3D *)entities[entity_id]["torque"];
 
-    torque.x += *(float *)message["x"];
-    torque.y += *(float *)message["y"];
-    torque.z += *(float *)message["z"];
+    torque.x += message["x"].get<float>();
+    torque.y += message["y"].get<float>();
+    torque.z += message["z"].get<float>();
   }
 
-  void Physics::update(untyped_map & message)
+  void Physics::update(nlohmann::json const& message)
   {
-    float &time_delta = *(float *)message["time_delta"];
+    float time_delta = message["time_delta"];
     for(auto entity : entities)
     {
-      std::unordered_map<std::string,void *> &components = entity.second;
+      untyped_map &components = entity.second;
 
       auto &position = *(Components::Point3D *)components["position"];
       auto &velocity = *(Components::Point3D *)components["velocity"];
@@ -61,13 +61,13 @@ namespace OpenCGE
     }
   }
 
-  void Physics::velocityApply(untyped_map & message)
+  void Physics::velocityApply(nlohmann::json const& message)
   {
-    int &entity_id = *(int *)message["entity_id"];
+    size_t entity_id = message["entity_id"];
     auto &velocity = *(Components::Point3D *)entities[entity_id]["velocity"];
 
-    velocity.x += *(float *)message["x"];
-    velocity.y += *(float *)message["y"];
-    velocity.z += *(float *)message["z"];
+    velocity.x += message["x"].get<float>();
+    velocity.y += message["y"].get<float>();
+    velocity.z += message["z"].get<float>();
   }
 }

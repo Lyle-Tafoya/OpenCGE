@@ -72,21 +72,20 @@ namespace OpenCGE
     }
   }
 
-  void GraphicsOpenGLLegacy::sceneUpdate(untyped_map & message)
+  void GraphicsOpenGLLegacy::sceneUpdate(nlohmann::json const& message)
   {
-    int &entity_id = *(int *)message["entity_id"];
+    int entity_id = message["entity_id"];
     untyped_map &components = entities[entity_id];
     auto &scene_3d = *(Components::Scene3D *)components["scene_3d"];
     if(scene_3d.scene_data == nullptr)
     {
       scene_3d.scene_data = new aiScene();
     }
-    auto &scene_name = *(std::string *)message["scene_name"];
-
+    std::string const&scene_name = message["scene_name"];
     *scene_3d.scene_data = *scene_templates[scene_name];
   }
 
-  void GraphicsOpenGLLegacy::update(untyped_map &)
+  void GraphicsOpenGLLegacy::update(nlohmann::json const&)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for(auto entity : entities)
@@ -119,7 +118,7 @@ namespace OpenCGE
     glfwSwapBuffers(window);
   }
 
-  void GraphicsOpenGLLegacy::shutdown(untyped_map &)
+  void GraphicsOpenGLLegacy::shutdown(nlohmann::json const&)
   {
     glfwTerminate();
     for(auto entry : scene_templates)

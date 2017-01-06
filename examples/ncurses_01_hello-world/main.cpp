@@ -11,15 +11,15 @@ int main()
 
   // Create a new entity
   size_t entity_id = OpenCGE::System::entityCreate("object_ncurses");
-  OpenCGE::System::callbackTrigger({{"type_id","scene_update"},{"entity_id",entity_id},{"text","Hello World"}});
-  OpenCGE::System::callbackTrigger({{"type_id","position_update"},{"entity_id",entity_id},{"x",5.f},{"y",2.f},{"z",0.f}});
-  OpenCGE::System::callbackTrigger({{"type_id","velocity_apply"},{"entity_id",entity_id},{"x",0.f},{"y",1.f},{"z",0.f}});
+  OpenCGE::System::callbackTrigger("scene_update", {{"entity_id",entity_id},{"text","Hello World"}});
+  OpenCGE::System::callbackTrigger("position_update", {{"entity_id",entity_id},{"x",5.f},{"y",2.f},{"z",0.f}});
+  OpenCGE::System::callbackTrigger("velocity_apply", {{"entity_id",entity_id},{"x",0.f},{"y",1.f},{"z",0.f}});
 
   OpenCGE::System::timerStart();
   while(true)
   {
-    OpenCGE::System::callbackTrigger({{"type_id","time_passed"},{"time_delta",OpenCGE::System::getTimeDelta()}});
+    OpenCGE::System::callbackTrigger("time_passed", {{"time_delta",OpenCGE::System::getTimeDelta()}});
   }
 
-  OpenCGE::System::callbackTrigger({{"type_id","shutdown"}});
+  OpenCGE::System::callbackTrigger("shutdown", {});
 }

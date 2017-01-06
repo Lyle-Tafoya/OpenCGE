@@ -11,10 +11,10 @@ namespace OpenCGE
   public:
     Physics();
     static void * createPoint3D();
-    void positionUpdate(untyped_map & message);
-    void torqueApply(untyped_map & message);
-    void update(untyped_map & message);
-    void velocityApply(untyped_map & message);
+    void positionUpdate(nlohmann::json const& message);
+    void torqueApply(nlohmann::json const& message);
+    void update(nlohmann::json const& message);
+    void velocityApply(nlohmann::json const& message);
   };
 }
 

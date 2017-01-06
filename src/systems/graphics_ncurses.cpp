@@ -24,14 +24,14 @@ namespace OpenCGE
     return new Components::SceneNcurses();
   }
 
-  void GraphicsNcurses::sceneUpdate(untyped_map & message)
+  void GraphicsNcurses::sceneUpdate(nlohmann::json const& message)
   {
-    int &entity_id = *(int *)message["entity_id"];
+    size_t entity_id = message["entity_id"];
     auto &scene_ncurses = *(Components::SceneNcurses *)entities[entity_id]["scene_ncurses"];
-    scene_ncurses.text = *(std::string *)message["text"];
+    scene_ncurses.text = message["text"].get<std::string>();
   }
 
-  void GraphicsNcurses::update(untyped_map &)
+  void GraphicsNcurses::update(nlohmann::json const&)
   {
     for(auto entity : entities)
     {
@@ -51,7 +51,7 @@ namespace OpenCGE
     }
   }
 
-  void GraphicsNcurses::shutdown(untyped_map &)
+  void GraphicsNcurses::shutdown(nlohmann::json const&)
   {
     endwin();
   }

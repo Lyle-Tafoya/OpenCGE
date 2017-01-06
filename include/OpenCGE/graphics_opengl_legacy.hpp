@@ -19,9 +19,9 @@ namespace OpenCGE
     static void * createScene3D();
     void sceneLoad(std::string const& file_path);
     void scenesLoad(std::string const& directory_path);
-    void sceneUpdate(untyped_map & message);
-    void shutdown(untyped_map & message);
-    void update(untyped_map & message);
+    void sceneUpdate(nlohmann::json const& message);
+    void shutdown(nlohmann::json const& message);
+    void update(nlohmann::json const& message);
     void windowResize(int width, int height);
   private:
     GLFWwindow *window;

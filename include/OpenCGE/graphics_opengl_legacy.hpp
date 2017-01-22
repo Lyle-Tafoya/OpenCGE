@@ -6,8 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <OpenCGE/system.hpp>
-#include <OpenCGE/components/point_3d.hpp>
-#include <OpenCGE/components/scene_3d.hpp>
+#include <OpenCGE/components/graphics_3d.hpp>
 
 namespace OpenCGE
 {
@@ -15,17 +14,19 @@ namespace OpenCGE
   {
   public:
     GraphicsOpenGLLegacy();
-    static void * createPoint3D();
-    static void * createScene3D();
+    void entityAdd(size_t entity_id);
+    void entityRemove(size_t entity_id);
     void sceneLoad(std::string const& file_path);
     void scenesLoad(std::string const& directory_path);
     void sceneUpdate(nlohmann::json const& message);
     void shutdown(nlohmann::json const& message);
     void update(nlohmann::json const& message);
     void windowResize(int width, int height);
+
   private:
+    std::unordered_map<size_t,Component::Graphics3D *> components;
     GLFWwindow *window;
-    std::unordered_map<std::string, const aiScene *> scene_templates;
+    std::unordered_map<std::string, Field::Scene3D> scene_templates;
     Assimp::Importer importer;
   };
 }

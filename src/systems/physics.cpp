@@ -4,26 +4,56 @@ namespace OpenCGE
 {
 
   Physics::Physics()
+    : System("physics")
   {
-    componentRegister("orientation", &createPoint3D);
-    componentRegister("position", &createPoint3D);
-    componentRegister("torque", &createPoint3D);
-    componentRegister("velocity", &createPoint3D);
     callbackRegister("position_update", &Physics::positionUpdate, this);
     callbackRegister("torque_apply", &Physics::torqueApply, this);
     callbackRegister("time_passed", &Physics::update, this);
     callbackRegister("velocity_apply", &Physics::velocityApply, this);
   }
 
-  void * Physics::createPoint3D()
+  void Physics::entityAdd(size_t entity_id)
   {
-    return new Components::Point3D();
+    std::unordered_map<std::string, void *> &entity = entities[entity_id];
+
+    Field::Point3D *orientation = (Field::Point3D *)entity["orientation"];
+    if(orientation == nullptr)
+    {
+      orientation = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["orientation"] = orientation;
+    }
+    Field::Point3D *position = (Field::Point3D *)entity["position"];
+    if(position == nullptr)
+    {
+      position = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["position"] = position;
+    }
+    Field::Point3D *torque = (Field::Point3D *)entity["torque"];
+    if(torque == nullptr)
+    {
+      torque = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["torque"] = torque;
+    }
+    Field::Point3D *velocity = (Field::Point3D *)entity["velocity"];
+    if(velocity == nullptr)
+    {
+      velocity = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["velocity"] = velocity;
+    }
+
+    components[entity_id] = new Component::Physics(*orientation, *position, *torque, *velocity);
+  }
+
+  void Physics::entityRemove(size_t entity_id)
+  {
+    delete components[entity_id];
+    components.erase(entity_id);
   }
 
   void Physics::positionUpdate(nlohmann::json const& message)
   {
     size_t entity_id = message["entity_id"];
-    auto &position = *(Components::Point3D *)entities[entity_id]["position"];
+    auto &position = components[entity_id]->position;
 
     position.x = message["x"];
     position.y = message["y"];
@@ -33,7 +63,7 @@ namespace OpenCGE
   void Physics::torqueApply(nlohmann::json const& message)
   {
     size_t entity_id = message["entity_id"];
-    auto &torque = *(Components::Point3D *)entities[entity_id]["torque"];
+    Field::Point3D &torque = components[entity_id]->torque;
 
     torque.x += message["x"].get<float>();
     torque.y += message["y"].get<float>();
@@ -43,28 +73,24 @@ namespace OpenCGE
   void Physics::update(nlohmann::json const& message)
   {
     float time_delta = message["time_delta"];
-    for(auto entity : entities)
+    for(auto entity : components)
     {
-      untyped_map &components = entity.second;
+      Component::Physics &component = *entity.second;
 
-      auto &position = *(Components::Point3D *)components["position"];
-      auto &velocity = *(Components::Point3D *)components["velocity"];
-      position.x += velocity.x * time_delta;
-      position.y += velocity.y * time_delta;
-      position.z += velocity.z * time_delta;
+      component.position.x += component.velocity.x * time_delta;
+      component.position.y += component.velocity.y * time_delta;
+      component.position.z += component.velocity.z * time_delta;
 
-      auto &orientation = *(Components::Point3D *)components["orientation"];
-      auto &torque = *(Components::Point3D *)components["torque"];
-      orientation.x += torque.x * time_delta;
-      orientation.y += torque.y * time_delta;
-      orientation.z += torque.z * time_delta;
+      component.orientation.x += component.torque.x * time_delta;
+      component.orientation.y += component.torque.y * time_delta;
+      component.orientation.z += component.torque.z * time_delta;
     }
   }
 
   void Physics::velocityApply(nlohmann::json const& message)
   {
     size_t entity_id = message["entity_id"];
-    auto &velocity = *(Components::Point3D *)entities[entity_id]["velocity"];
+    Field::Point3D &velocity = components[entity_id]->velocity;
 
     velocity.x += message["x"].get<float>();
     velocity.y += message["y"].get<float>();

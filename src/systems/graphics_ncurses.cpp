@@ -4,9 +4,8 @@ namespace OpenCGE
 {
 
   GraphicsNcurses::GraphicsNcurses()
+    : System("graphics_ncurses")
   {
-    componentRegister("position", &createPoint3D);
-    componentRegister("scene_ncurses", &createSceneNcurses);
     callbackRegister("shutdown", &GraphicsNcurses::shutdown, this);
     callbackRegister("scene_update", &GraphicsNcurses::sceneUpdate, this);
     callbackRegister("time_passed", &GraphicsNcurses::update, this);
@@ -14,40 +13,58 @@ namespace OpenCGE
     curs_set(0);
   }
 
-  void * GraphicsNcurses::createPoint3D()
+  void GraphicsNcurses::entityAdd(size_t entity_id)
   {
-    return new Components::Point3D();
+    std::unordered_map<std::string, void *> &entity = entities[entity_id];
+
+    auto *orientation = (Field::Point3D *)entity["orientation"];
+    if(orientation == nullptr)
+    {
+      orientation = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["orientation"] = orientation;
+    }
+    auto *position = (Field::Point3D *)entity["position"];
+    if(position == nullptr)
+    {
+      position = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["position"] = position;
+    }
+    auto *scene = (Field::SceneNcurses *)entity["scene_ncurses"];
+    if(scene == nullptr)
+    {
+      scene = new Field::SceneNcurses("@");
+      entity["scene_ncurses"] = scene;
+    }
+
+    components[entity_id] = new Component::GraphicsNcurses(*orientation, *position, *scene);
   }
 
-  void * GraphicsNcurses::createSceneNcurses()
+  void GraphicsNcurses::entityRemove(size_t entity_id)
   {
-    return new Components::SceneNcurses();
+    delete components[entity_id];
+    components.erase(entity_id);
   }
 
   void GraphicsNcurses::sceneUpdate(nlohmann::json const& message)
   {
     size_t entity_id = message["entity_id"];
-    auto &scene_ncurses = *(Components::SceneNcurses *)entities[entity_id]["scene_ncurses"];
-    scene_ncurses.text = message["text"].get<std::string>();
+    Field::SceneNcurses &scene = components[entity_id]->scene;
+    scene.text = message["text"].get<std::string>();
   }
 
   void GraphicsNcurses::update(nlohmann::json const&)
   {
-    for(auto entity : entities)
+    for(auto entity : components)
     {
-      untyped_map &components = entity.second;
-      auto &position = *(Components::Point3D *)components["position"];
-      auto &scene_ncurses = *(Components::SceneNcurses *)components["scene_ncurses"];
-      mvwaddstr(screen, (int)position.y, (int)position.x, scene_ncurses.text.c_str());
+      Component::GraphicsNcurses &component = *entity.second;
+      mvwaddstr(screen, (int)component.position.y, (int)component.position.x, component.scene.text.c_str());
     }
     wrefresh(screen);
-    for(auto entity : entities)
+    for(auto entity : components)
     {
-      untyped_map &components = entity.second;
-      auto &position = *(Components::Point3D *)components["position"];
-      auto &scene_ncurses = *(Components::SceneNcurses *)components["scene_ncurses"];
-      std::string empty_str(scene_ncurses.text.size(), ' ');
-      mvwaddstr(screen, (int)position.y, (int)position.x, empty_str.c_str());
+      Component::GraphicsNcurses &component = *entity.second;
+      std::string empty_str(component.scene.text.size(), ' ');
+      mvwaddstr(screen, (int)component.position.y, (int)component.position.x, empty_str.c_str());
     }
   }
 

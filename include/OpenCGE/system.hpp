@@ -11,8 +11,6 @@
 
 namespace OpenCGE
 {
-  typedef std::unordered_map<std::string,void *> untyped_map;
-
   class System
   {
   public:
@@ -30,30 +28,28 @@ namespace OpenCGE
     virtual ~System(){};
 
   protected:
+    System(std::string const& name);
     template<typename A, typename B>
     static void callbackRegister(std::string const& message_type, A method, B object)
     {
       callback_registry[message_type].push_back(std::bind(method, object, std::placeholders::_1));
     }
-    void componentAdd(std::string const& component_name, void * component, size_t entity_id);
-    void componentRemove(std::string const& component_name, size_t entity_id);
-    void componentRegister(std::string const& component_name, void *(*method)());
-    void entityRemove(size_t entity_id);
+    virtual void entityAdd(size_t entity_id) = 0;
+    virtual void entityRemove(size_t entity_id) = 0;
+    void selfRegister();
 
-    std::unordered_map<size_t,untyped_map> entities;
+    static std::unordered_map<size_t,std::unordered_map<std::string,void *>> entities;
+    const std::string NAME;
 
   private:
-    static untyped_map & jsonConvert(nlohmann::json const& j);
-
     static std::unordered_map<std::string,std::vector<std::function<void(nlohmann::json const&)>>> callback_registry;
-    static std::unordered_map<std::string,std::function<void *()>> component_factory;
-    static std::unordered_map<std::string,std::vector<System *>> component_registry;
     static std::unordered_map<size_t,std::vector<System *>> entity_registry;
-    static std::unordered_map<std::string,untyped_map *> entity_templates;
+    static std::unordered_map<std::string,std::vector<std::string>> entity_templates;
     static std::chrono::high_resolution_clock timer;
     static std::chrono::time_point<std::chrono::system_clock> previous_time;
     static std::chrono::time_point<std::chrono::system_clock> current_time;
     static ReusableId entity_id_generator;
+    static std::unordered_map<std::string,std::vector<System *>> system_registry;
   };
 }
 

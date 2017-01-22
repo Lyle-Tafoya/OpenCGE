@@ -10,10 +10,8 @@ namespace OpenCGE
 {
 
   GraphicsOpenGLLegacy::GraphicsOpenGLLegacy()
+    : System("graphics_3d")
   {
-    componentRegister("orientation", &createPoint3D);
-    componentRegister("position", &createPoint3D);
-    componentRegister("scene_3d", &createScene3D);
     callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
     callbackRegister("shutdown", &GraphicsOpenGLLegacy::shutdown, this);
     callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
@@ -30,14 +28,36 @@ namespace OpenCGE
     windowResize(width, height);
   }
 
-  void * GraphicsOpenGLLegacy::createPoint3D()
+  void GraphicsOpenGLLegacy::entityAdd(size_t entity_id)
   {
-    return new Components::Point3D();
+    std::unordered_map<std::string, void *> &entity = entities[entity_id];
+
+    auto *orientation = (Field::Point3D *)entity["orientation"];
+    if(orientation == nullptr)
+    {
+      orientation = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["orientation"] = orientation;
+    }
+    auto *position = (Field::Point3D *)entity["position"];
+    if(position == nullptr)
+    {
+      position = new Field::Point3D(0.f, 0.f, 0.f);
+      entity["position"] = position;
+    }
+    auto *scene = (Field::Scene3D *)entity["scene_3d"];
+    if(scene == nullptr)
+    {
+      scene = new Field::Scene3D();
+      entity["scene_3d"] = scene;
+    }
+
+    components[entity_id] = new Component::Graphics3D(*orientation, *position, *scene);
   }
 
-  void * GraphicsOpenGLLegacy::createScene3D()
+  void GraphicsOpenGLLegacy::entityRemove(size_t entity_id)
   {
-    return new Components::Scene3D();
+    delete components[entity_id];
+    components.erase(entity_id);
   }
 
   void GraphicsOpenGLLegacy::windowResize(int width, int height)
@@ -59,8 +79,19 @@ namespace OpenCGE
     std::string scene_name = fields.front();
     split(fields, scene_name, boost::is_any_of("/"));
     scene_name = fields.back();
-
-    scene_templates[scene_name] = importer.ReadFile(file_path, aiProcess_CalcTangentSpace|aiProcess_Triangulate|aiProcess_SortByPType);
+    const aiScene *ai_scene = importer.ReadFile(file_path, aiProcess_CalcTangentSpace|aiProcess_Triangulate|aiProcess_SortByPType);
+    // TODO Store meshes in vertex buffer arrays
+    for(size_t mesh_num = 0; mesh_num < ai_scene->mNumMeshes; ++mesh_num)
+    {
+      aiMesh &mesh = *ai_scene->mMeshes[mesh_num];
+      std::vector<Field::Point3D> vertices;
+      for(size_t vertice_num = 0; vertice_num < mesh.mNumVertices; ++vertice_num)
+      {
+        aiVector3D &vertice = mesh.mVertices[vertice_num];
+        vertices.push_back(Field::Point3D(vertice.x, vertice.y, vertice.z));
+      }
+      scene_templates[scene_name].meshes.push_back(vertices);
+    }
   }
 
   void GraphicsOpenGLLegacy::scenesLoad(std::string const& directory_path)
@@ -74,40 +105,27 @@ namespace OpenCGE
 
   void GraphicsOpenGLLegacy::sceneUpdate(nlohmann::json const& message)
   {
-    int entity_id = message["entity_id"];
-    untyped_map &components = entities[entity_id];
-    auto &scene_3d = *(Components::Scene3D *)components["scene_3d"];
-    if(scene_3d.scene_data == nullptr)
-    {
-      scene_3d.scene_data = new aiScene();
-    }
-    std::string const&scene_name = message["scene_name"];
-    *scene_3d.scene_data = *scene_templates[scene_name];
+    size_t entity_id = message["entity_id"];
+    components[entity_id]->scene = scene_templates[message["scene_name"]];
   }
 
   void GraphicsOpenGLLegacy::update(nlohmann::json const&)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for(auto entity : entities)
+    for(auto entity : components)
     {
-      untyped_map &components = entity.second;
+      Component::Graphics3D &component = *entity.second;
       glPushMatrix();
-      auto &position = *(Components::Point3D *)components["position"];
-      glTranslatef(position.x, position.y, position.z);
-      auto &orientation = *(Components::Point3D *)components["orientation"];
-      glRotatef(orientation.x, 1, 0, 0);
-      glRotatef(orientation.y, 0, 1, 0);
-      glRotatef(orientation.z, 0, 0, 1);
+      glTranslatef(component.position.x, component.position.y, component.position.z);
+      glRotatef(component.orientation.x, 1, 0, 0);
+      glRotatef(component.orientation.y, 0, 1, 0);
+      glRotatef(component.orientation.z, 0, 0, 1);
 
-      auto &scene_3d = *(Components::Scene3D *)components["scene_3d"];
-
-      for(size_t mesh_num = 0; mesh_num < scene_3d.scene_data->mNumMeshes; ++mesh_num)
+      for(std::vector<Field::Point3D> mesh : component.scene.meshes)
       {
-        aiMesh &mesh = *scene_3d.scene_data->mMeshes[mesh_num];
         glBegin(GL_TRIANGLES);
-        for(size_t vertice_num = 0; vertice_num < mesh.mNumVertices; ++vertice_num)
+        for(Field::Point3D vertice : mesh)
         {
-          aiVector3D &vertice = mesh.mVertices[vertice_num];
           glColor3f(0.5f, 0.5f, 0.5f);
           glVertex3f(vertice.x, vertice.y, vertice.z);
         }
@@ -121,9 +139,5 @@ namespace OpenCGE
   void GraphicsOpenGLLegacy::shutdown(nlohmann::json const&)
   {
     glfwTerminate();
-    for(auto entry : scene_templates)
-    {
-      delete entry.second;
-    }
   }
 }

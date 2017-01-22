@@ -2,7 +2,7 @@
 #define _PHYSICS_HPP
 
 #include <OpenCGE/system.hpp>
-#include <OpenCGE/components/point_3d.hpp>
+#include <OpenCGE/components/physics.hpp>
 
 namespace OpenCGE
 {
@@ -10,11 +10,15 @@ namespace OpenCGE
   {
   public:
     Physics();
-    static void * createPoint3D();
+    void entityAdd(size_t entity_id);
+    void entityRemove(size_t entity_id);
     void positionUpdate(nlohmann::json const& message);
     void torqueApply(nlohmann::json const& message);
     void update(nlohmann::json const& message);
     void velocityApply(nlohmann::json const& message);
+
+  private:
+    std::unordered_map<size_t,Component::Physics *> components;
   };
 }
 

@@ -1,15 +1,15 @@
 #include <OpenCGE/graphics_opengl_legacy.hpp>
-
-#include <assimp/postprocess.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/regex.hpp>
 #include <boost/filesystem.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 namespace OpenCGE
 {
 
-  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy()
+  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(int window_width, int window_height, std::string const& window_name)
     : System("graphics_3d")
   {
     callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
@@ -17,7 +17,7 @@ namespace OpenCGE
     callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
 
     glfwInit();
-    window = glfwCreateWindow(640, 480, "OpenCGE", NULL, NULL);
+    window = glfwCreateWindow(window_width, window_height, window_name.c_str(), NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     int width, height;
@@ -79,7 +79,9 @@ namespace OpenCGE
     std::string scene_name = fields.front();
     split(fields, scene_name, boost::is_any_of("/"));
     scene_name = fields.back();
-    const aiScene *ai_scene = importer.ReadFile(file_path, aiProcess_CalcTangentSpace|aiProcess_Triangulate|aiProcess_SortByPType);
+    Assimp::Importer importer;
+    unsigned int flags = aiProcess_CalcTangentSpace|aiProcess_Triangulate|aiProcess_SortByPType;
+    const aiScene *ai_scene = importer.ReadFile(file_path, flags);
     // TODO Store meshes in vertex buffer arrays
     for(size_t mesh_num = 0; mesh_num < ai_scene->mNumMeshes; ++mesh_num)
     {

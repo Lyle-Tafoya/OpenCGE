@@ -29,6 +29,7 @@ OpenCGE is modular by design and you will need different dependencies installed 
 * GLFW
 * Assimp
 
-**opencge-graphics-ncurses**
+**opencge-physics**
 
-* ncurses
+* No additional dependencies
+

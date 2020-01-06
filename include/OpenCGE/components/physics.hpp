@@ -1,7 +1,7 @@
 #ifndef OPENCGE_COMPONENTS_PHYSICS_HPP_
 #define OPENCGE_COMPONENTS_PHYSICS_HPP_
 
-#include <OpenCGE/fields/point_3d.hpp>
+#include <glm/glm.hpp>
 
 namespace OpenCGE
 {
@@ -10,12 +10,12 @@ namespace OpenCGE
     struct Physics
     {
 
-      Field::Point3D &orientation;
-      Field::Point3D &position;
-      Field::Point3D &torque;
-      Field::Point3D &velocity;
+      glm::vec3 &orientation;
+      glm::vec3 &position;
+      glm::vec3 &torque;
+      glm::vec3 &velocity;
 
-      Physics(Field::Point3D &orientation, Field::Point3D &position, Field::Point3D &torque, Field::Point3D &velocity)
+      Physics(glm::vec3 &orientation, glm::vec3 &position, glm::vec3 &torque, glm::vec3 &velocity)
         : orientation(orientation), position(position), torque(torque), velocity(velocity) {};
     };
   }

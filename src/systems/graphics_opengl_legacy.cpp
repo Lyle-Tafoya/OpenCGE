@@ -2,6 +2,7 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#include <glm/glm.hpp>
 
 #include <OpenCGE/graphics_opengl_legacy.hpp>
 
@@ -30,16 +31,16 @@ namespace OpenCGE
   {
     std::unordered_map<std::string, void *> &entity = entities[entityId];
 
-    auto *orientation = static_cast<Field::Point3D *>(entity["orientation"]);
+    auto *orientation = static_cast<glm::vec3 *>(entity["orientation"]);
     if(orientation == nullptr)
     {
-      orientation = new Field::Point3D(0.f, 0.f, 0.f);
+      orientation = new glm::vec3(0.f, 0.f, 0.f);
       entity["orientation"] = orientation;
     }
-    auto *position = static_cast<Field::Point3D *>(entity["position"]);
+    auto *position = static_cast<glm::vec3 *>(entity["position"]);
     if(position == nullptr)
     {
-      position = new Field::Point3D(0.f, 0.f, 0.f);
+      position = new glm::vec3(0.f, 0.f, 0.f);
       entity["position"] = position;
     }
     auto *scene = static_cast<Field::Scene3D *>(entity["scene_3d"]);
@@ -80,11 +81,11 @@ namespace OpenCGE
     for(size_t mesh_num = 0; mesh_num < ai_scene->mNumMeshes; ++mesh_num)
     {
       aiMesh &mesh = *ai_scene->mMeshes[mesh_num];
-      std::vector<Field::Point3D> vertices;
+      std::vector<glm::vec3> vertices;
       for(size_t vertice_num = 0; vertice_num < mesh.mNumVertices; ++vertice_num)
       {
         aiVector3D &vertice = mesh.mVertices[vertice_num];
-        vertices.push_back(Field::Point3D(vertice.x, vertice.y, vertice.z));
+        vertices.push_back(glm::vec3(vertice.x, vertice.y, vertice.z));
       }
       sceneTemplates[filePath].meshes.push_back(vertices);
     }
@@ -116,10 +117,10 @@ namespace OpenCGE
       glRotatef(component.orientation.y, 0, 1, 0);
       glRotatef(component.orientation.z, 0, 0, 1);
 
-      for(std::vector<Field::Point3D> mesh : component.scene.meshes)
+      for(std::vector<glm::vec3> mesh : component.scene.meshes)
       {
         glBegin(GL_TRIANGLES);
-        for(Field::Point3D vertice : mesh)
+        for(glm::vec3 vertice : mesh)
         {
           glColor3f(0.5f, 0.5f, 0.5f);
           glVertex3f(vertice.x, vertice.y, vertice.z);

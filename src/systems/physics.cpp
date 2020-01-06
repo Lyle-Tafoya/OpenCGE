@@ -1,3 +1,5 @@
+#include <glm/glm.hpp>
+
 #include <OpenCGE/physics.hpp>
 
 namespace OpenCGE
@@ -16,28 +18,28 @@ namespace OpenCGE
   {
     std::unordered_map<std::string, void *> &entity = entities[entityId];
 
-    Field::Point3D *orientation = static_cast<Field::Point3D *>(entity["orientation"]);
+    glm::vec3 *orientation = static_cast<glm::vec3 *>(entity["orientation"]);
     if(orientation == nullptr)
     {
-      orientation = new Field::Point3D(0.f, 0.f, 0.f);
+      orientation = new glm::vec3(0.f, 0.f, 0.f);
       entity["orientation"] = orientation;
     }
-    Field::Point3D *position = static_cast<Field::Point3D *>(entity["position"]);
+    glm::vec3 *position = static_cast<glm::vec3 *>(entity["position"]);
     if(position == nullptr)
     {
-      position = new Field::Point3D(0.f, 0.f, 0.f);
+      position = new glm::vec3(0.f, 0.f, 0.f);
       entity["position"] = position;
     }
-    Field::Point3D *torque = static_cast<Field::Point3D *>(entity["torque"]);
+    glm::vec3 *torque = static_cast<glm::vec3 *>(entity["torque"]);
     if(torque == nullptr)
     {
-      torque = new Field::Point3D(0.f, 0.f, 0.f);
+      torque = new glm::vec3(0.f, 0.f, 0.f);
       entity["torque"] = torque;
     }
-    Field::Point3D *velocity = static_cast<Field::Point3D *>(entity["velocity"]);
+    glm::vec3 *velocity = static_cast<glm::vec3 *>(entity["velocity"]);
     if(velocity == nullptr)
     {
-      velocity = new Field::Point3D(0.f, 0.f, 0.f);
+      velocity = new glm::vec3(0.f, 0.f, 0.f);
       entity["velocity"] = velocity;
     }
 
@@ -63,7 +65,7 @@ namespace OpenCGE
   void Physics::torqueApply(const nlohmann::json &message)
   {
     size_t entityId = message["entity_id"];
-    Field::Point3D &torque = components[entityId]->torque;
+    glm::vec3 &torque = components[entityId]->torque;
 
     torque.x += message["x"].get<float>();
     torque.y += message["y"].get<float>();
@@ -90,7 +92,7 @@ namespace OpenCGE
   void Physics::velocityApply(const nlohmann::json &message)
   {
     size_t entityId = message["entity_id"];
-    Field::Point3D &velocity = components[entityId]->velocity;
+    glm::vec3 &velocity = components[entityId]->velocity;
 
     velocity.x += message["x"].get<float>();
     velocity.y += message["y"].get<float>();

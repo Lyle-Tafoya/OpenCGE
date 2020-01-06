@@ -2,6 +2,7 @@
 #define INCLUDE_OPENCGE_FIELDS_SCENE_3D_HPP_
 
 #include <assimp/scene.h>
+#include <glm/glm.hpp>
 
 namespace OpenCGE
 {
@@ -9,7 +10,7 @@ namespace OpenCGE
   {
     struct Scene3D
     {
-      std::vector<std::vector<Field::Point3D>> meshes;
+      std::vector<std::vector<glm::vec3>> meshes;
     };
   }
 }

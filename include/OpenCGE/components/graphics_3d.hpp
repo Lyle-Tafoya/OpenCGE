@@ -1,7 +1,8 @@
 #ifndef OPENCGE_COMPONENT_GRAPHICS_3D_HPP_
 #define OPENCGE_COMPONENT_GRAPHICS_3D_HPP_
 
-#include <OpenCGE/fields/point_3d.hpp>
+#include <glm/glm.hpp>
+
 #include <OpenCGE/fields/scene_3d.hpp>
 
 namespace OpenCGE
@@ -10,11 +11,11 @@ namespace OpenCGE
   {
     struct Graphics3D
     {
-      Field::Point3D &orientation;
-      Field::Point3D &position;
+      glm::vec3 &orientation;
+      glm::vec3 &position;
       Field::Scene3D &scene;
 
-      Graphics3D(Field::Point3D &orientation, Field::Point3D &position, Field::Scene3D &scene)
+      Graphics3D(glm::vec3 &orientation, glm::vec3 &position, Field::Scene3D &scene)
         : orientation(orientation), position(position), scene(scene) {}
     };
   }

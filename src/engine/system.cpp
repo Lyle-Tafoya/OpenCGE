@@ -7,8 +7,8 @@
 namespace OpenCGE
 {
   std::unordered_map<std::string,std::vector<std::function<void(const nlohmann::json &)>>> System::callbackRegistry;
-  std::unordered_map<size_t,std::unordered_map<std::string, void *>> System::entities;
-  std::unordered_map<size_t,std::vector<System *>> System::entityRegistry;
+  std::unordered_map<size_t, System::Entity> System::entities;
+  std::unordered_map<size_t, std::vector<System *>> System::entityRegistry;
   std::unordered_map<std::string, std::vector<std::string>> System::entityTemplates;
   std::chrono::high_resolution_clock System::timer;
   std::chrono::time_point<std::chrono::system_clock> System::previousTime;

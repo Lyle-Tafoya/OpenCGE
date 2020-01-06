@@ -16,32 +16,12 @@ namespace OpenCGE
 
   void Physics::entityAdd(size_t entityId)
   {
-    std::unordered_map<std::string, void *> &entity = entities[entityId];
+    Entity &entity = entities[entityId];
 
-    glm::vec3 *orientation = static_cast<glm::vec3 *>(entity["orientation"]);
-    if(orientation == nullptr)
-    {
-      orientation = new glm::vec3(0.f, 0.f, 0.f);
-      entity["orientation"] = orientation;
-    }
-    glm::vec3 *position = static_cast<glm::vec3 *>(entity["position"]);
-    if(position == nullptr)
-    {
-      position = new glm::vec3(0.f, 0.f, 0.f);
-      entity["position"] = position;
-    }
-    glm::vec3 *torque = static_cast<glm::vec3 *>(entity["torque"]);
-    if(torque == nullptr)
-    {
-      torque = new glm::vec3(0.f, 0.f, 0.f);
-      entity["torque"] = torque;
-    }
-    glm::vec3 *velocity = static_cast<glm::vec3 *>(entity["velocity"]);
-    if(velocity == nullptr)
-    {
-      velocity = new glm::vec3(0.f, 0.f, 0.f);
-      entity["velocity"] = velocity;
-    }
+    auto *orientation = ensureFieldExists<glm::vec3>(entity, "orientation");
+    auto *position = ensureFieldExists<glm::vec3>(entity, "position");
+    auto *torque = ensureFieldExists<glm::vec3>(entity, "torque");
+    auto *velocity = ensureFieldExists<glm::vec3>(entity, "velocity");
 
     components[entityId] = new Component::Physics(*orientation, *position, *torque, *velocity);
   }

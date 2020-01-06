@@ -15,26 +15,11 @@ namespace OpenCGE
 
   void GraphicsNcurses::entityAdd(size_t entity_id)
   {
-    std::unordered_map<std::string, void *> &entity = entities[entity_id];
+    Entity &entity = entities[entity_id];
 
-    auto *orientation = (Field::Point3D *)entity["orientation"];
-    if(orientation == nullptr)
-    {
-      orientation = new Field::Point3D(0.f, 0.f, 0.f);
-      entity["orientation"] = orientation;
-    }
-    auto *position = (Field::Point3D *)entity["position"];
-    if(position == nullptr)
-    {
-      position = new Field::Point3D(0.f, 0.f, 0.f);
-      entity["position"] = position;
-    }
-    auto *scene = (Field::SceneNcurses *)entity["scene_ncurses"];
-    if(scene == nullptr)
-    {
-      scene = new Field::SceneNcurses("@");
-      entity["scene_ncurses"] = scene;
-    }
+    auto *orientation = ensureFieldExists<glm::vec3>(entity, "orientation");
+    auto *position = ensureFieldExists<glm::vec3>(entity, "position");
+    auto *scene = ensureFieldExists<Field::SceneNcurses>(entity, "scene_ncurses");
 
     components[entity_id] = new Component::GraphicsNcurses(*orientation, *position, *scene);
   }

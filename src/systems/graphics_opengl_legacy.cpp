@@ -29,26 +29,11 @@ namespace OpenCGE
 
   void GraphicsOpenGLLegacy::entityAdd(size_t entityId)
   {
-    std::unordered_map<std::string, void *> &entity = entities[entityId];
+    Entity &entity = entities[entityId];
 
-    auto *orientation = static_cast<glm::vec3 *>(entity["orientation"]);
-    if(orientation == nullptr)
-    {
-      orientation = new glm::vec3(0.f, 0.f, 0.f);
-      entity["orientation"] = orientation;
-    }
-    auto *position = static_cast<glm::vec3 *>(entity["position"]);
-    if(position == nullptr)
-    {
-      position = new glm::vec3(0.f, 0.f, 0.f);
-      entity["position"] = position;
-    }
-    auto *scene = static_cast<Field::Scene3D *>(entity["scene_3d"]);
-    if(scene == nullptr)
-    {
-      scene = new Field::Scene3D();
-      entity["scene_3d"] = scene;
-    }
+    auto *orientation = ensureFieldExists<glm::vec3>(entity, "orientation");
+    auto *position = ensureFieldExists<glm::vec3>(entity, "position");
+    auto *scene = ensureFieldExists<Field::Scene3D>(entity, "scene_3d");
 
     components[entityId] = new Component::Graphics3D(*orientation, *position, *scene);
   }

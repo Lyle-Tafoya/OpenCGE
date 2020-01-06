@@ -1,15 +1,13 @@
-#include <OpenCGE/graphics_opengl_legacy.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/regex.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include <OpenCGE/graphics_opengl_legacy.hpp>
+
 namespace OpenCGE
 {
-
-  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(int window_width, int window_height, std::string const& window_name)
+  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(int windowWidth, int windowHeight, const std::string &windowName)
     : System("graphics_3d")
   {
     callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
@@ -17,7 +15,7 @@ namespace OpenCGE
     callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
 
     glfwInit();
-    window = glfwCreateWindow(window_width, window_height, window_name.c_str(), NULL, NULL);
+    window = glfwCreateWindow(windowWidth, windowHeight, windowName.c_str(), NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     int width, height;
@@ -28,36 +26,36 @@ namespace OpenCGE
     windowResize(width, height);
   }
 
-  void GraphicsOpenGLLegacy::entityAdd(size_t entity_id)
+  void GraphicsOpenGLLegacy::entityAdd(size_t entityId)
   {
-    std::unordered_map<std::string, void *> &entity = entities[entity_id];
+    std::unordered_map<std::string, void *> &entity = entities[entityId];
 
-    auto *orientation = (Field::Point3D *)entity["orientation"];
+    auto *orientation = static_cast<Field::Point3D *>(entity["orientation"]);
     if(orientation == nullptr)
     {
       orientation = new Field::Point3D(0.f, 0.f, 0.f);
       entity["orientation"] = orientation;
     }
-    auto *position = (Field::Point3D *)entity["position"];
+    auto *position = static_cast<Field::Point3D *>(entity["position"]);
     if(position == nullptr)
     {
       position = new Field::Point3D(0.f, 0.f, 0.f);
       entity["position"] = position;
     }
-    auto *scene = (Field::Scene3D *)entity["scene_3d"];
+    auto *scene = static_cast<Field::Scene3D *>(entity["scene_3d"]);
     if(scene == nullptr)
     {
       scene = new Field::Scene3D();
       entity["scene_3d"] = scene;
     }
 
-    components[entity_id] = new Component::Graphics3D(*orientation, *position, *scene);
+    components[entityId] = new Component::Graphics3D(*orientation, *position, *scene);
   }
 
-  void GraphicsOpenGLLegacy::entityRemove(size_t entity_id)
+  void GraphicsOpenGLLegacy::entityRemove(size_t entityId)
   {
-    delete components[entity_id];
-    components.erase(entity_id);
+    delete components[entityId];
+    components.erase(entityId);
   }
 
   void GraphicsOpenGLLegacy::windowResize(int width, int height)
@@ -71,17 +69,13 @@ namespace OpenCGE
     gluLookAt(0.f, 0.f, 5.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
   }
 
-  void GraphicsOpenGLLegacy::sceneLoad(std::string const& file_path)
+  void GraphicsOpenGLLegacy::sceneLoad(const std::filesystem::path &filePath)
   {
 
     std::vector<std::string> fields;
-    boost::split_regex(fields, file_path, boost::regex("\\.dae"));
-    std::string scene_name = fields.front();
-    split(fields, scene_name, boost::is_any_of("/"));
-    scene_name = fields.back();
     Assimp::Importer importer;
     unsigned int flags = aiProcess_CalcTangentSpace|aiProcess_Triangulate|aiProcess_SortByPType;
-    const aiScene *ai_scene = importer.ReadFile(file_path, flags);
+    const aiScene *ai_scene = importer.ReadFile(filePath, flags);
     // TODO Store meshes in vertex buffer arrays
     for(size_t mesh_num = 0; mesh_num < ai_scene->mNumMeshes; ++mesh_num)
     {
@@ -92,26 +86,25 @@ namespace OpenCGE
         aiVector3D &vertice = mesh.mVertices[vertice_num];
         vertices.push_back(Field::Point3D(vertice.x, vertice.y, vertice.z));
       }
-      scene_templates[scene_name].meshes.push_back(vertices);
+      sceneTemplates[filePath].meshes.push_back(vertices);
     }
   }
 
-  void GraphicsOpenGLLegacy::scenesLoad(std::string const& directory_path)
+  void GraphicsOpenGLLegacy::scenesLoad(const std::filesystem::path &directoryPath)
   {
-    boost::filesystem::path entity_directory(directory_path);
-    for(auto &dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(entity_directory), {}))
+    for(auto &directoryEntry : std::filesystem::directory_iterator(directoryPath))
     {
-      GraphicsOpenGLLegacy::sceneLoad(dir_entry.path().string());
+      GraphicsOpenGLLegacy::sceneLoad(directoryEntry.path());
     }
   }
 
-  void GraphicsOpenGLLegacy::sceneUpdate(nlohmann::json const& message)
+  void GraphicsOpenGLLegacy::sceneUpdate(const nlohmann::json &message)
   {
-    size_t entity_id = message["entity_id"];
-    components[entity_id]->scene = scene_templates[message["scene_name"]];
+    size_t entityId = message["entity_id"].get<size_t>();
+    components[entityId]->scene = sceneTemplates[message["scene_name"]];
   }
 
-  void GraphicsOpenGLLegacy::update(nlohmann::json const&)
+  void GraphicsOpenGLLegacy::update(const nlohmann::json &)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for(auto entity : components)
@@ -138,7 +131,7 @@ namespace OpenCGE
     glfwSwapBuffers(window);
   }
 
-  void GraphicsOpenGLLegacy::shutdown(nlohmann::json const&)
+  void GraphicsOpenGLLegacy::shutdown(const nlohmann::json &)
   {
     glfwTerminate();
   }

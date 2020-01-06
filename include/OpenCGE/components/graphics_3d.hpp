@@ -1,5 +1,5 @@
-#ifndef INCLUDE_OPENCGE_COMPONENTS_GRAPHICS_3D_HPP_
-#define INCLUDE_OPENCGE_COMPONENTS_GRAPHICS_3D_HPP_
+#ifndef OPENCGE_COMPONENT_GRAPHICS_3D_HPP_
+#define OPENCGE_COMPONENT_GRAPHICS_3D_HPP_
 
 #include <OpenCGE/fields/point_3d.hpp>
 #include <OpenCGE/fields/scene_3d.hpp>
@@ -20,4 +20,4 @@ namespace OpenCGE
   }
 }
 
-#endif /* INCLUDE_OPENCGE_COMPONENTS_GRAPHICS_3D_HPP_ */
+#endif

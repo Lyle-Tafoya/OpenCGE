@@ -1,128 +1,121 @@
+#include <filesystem>
 #include <fstream>
 #include <unordered_set>
-#include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/regex.hpp>
-#include <boost/filesystem.hpp>
+
 #include <OpenCGE/system.hpp>
 
 namespace OpenCGE
 {
-  std::unordered_map<std::string,std::vector<std::function<void(nlohmann::json const&)>>> System::callback_registry;
-  std::unordered_map<size_t,std::unordered_map<std::string,void *>> System::entities;
-  std::unordered_map<size_t,std::vector<System *>> System::entity_registry;
-  std::unordered_map<std::string,std::vector<std::string>> System::entity_templates;
+  std::unordered_map<std::string,std::vector<std::function<void(const nlohmann::json &)>>> System::callbackRegistry;
+  std::unordered_map<size_t,std::unordered_map<std::string, void *>> System::entities;
+  std::unordered_map<size_t,std::vector<System *>> System::entityRegistry;
+  std::unordered_map<std::string, std::vector<std::string>> System::entityTemplates;
   std::chrono::high_resolution_clock System::timer;
-  std::chrono::time_point<std::chrono::system_clock> System::previous_time;
-  std::chrono::time_point<std::chrono::system_clock> System::current_time;
-  std::unordered_map<std::string,std::vector<System *>> System::system_registry;
-  ReusableId System::entity_id_generator;
+  std::chrono::time_point<std::chrono::system_clock> System::previousTime;
+  std::chrono::time_point<std::chrono::system_clock> System::currentTime;
+  std::unordered_map<std::string,std::vector<System *>> System::systemRegistry;
+  ReusableIdManager System::entityIdManager;
 
-  System::System(std::string const& name)
+  System::System(const std::string &name)
     : NAME(name)
   {
     selfRegister();
   }
 
-  void System::callbackTrigger(std::string const& message_type, nlohmann::json const& message)
+  void System::callbackTrigger(const std::string &messageType, const nlohmann::json &message)
   {
-    for(auto callback_method : callback_registry[message_type])
+    for(auto callbackMethod : callbackRegistry[messageType])
     {
-      callback_method(message);
+      callbackMethod(message);
     }
   }
 
-  void System::componentCreate(std::string const& component_name, size_t entity_id)
+  void System::componentCreate(const std::string &componentName, size_t entityId)
   {
-    for(System *system : system_registry[component_name])
+    for(System *system : systemRegistry[componentName])
     {
-      system->entityAdd(entity_id);
+      system->entityAdd(entityId);
     }
   }
 
-  void System::componentDelete(std::string const& component_name, size_t entity_id)
+  void System::componentDelete(const std::string &componentName, size_t entityId)
   {
-    for(System *system : system_registry[component_name])
+    for(System *system : systemRegistry[componentName])
     {
-      system->entityRemove(entity_id);
+      system->entityRemove(entityId);
     }
   }
 
-  void System::entitiesLoad(std::string const& directory_path)
+  void System::entitiesLoad(const std::filesystem::path &directoryPath)
   {
-    boost::filesystem::path entity_directory(directory_path);
-    for(auto &dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(entity_directory), {}))
+    for(auto &directoryEntry : std::filesystem::directory_iterator(directoryPath))
     {
-      System::entityLoad(dir_entry.path().string());
+      System::entityLoad(directoryEntry.path());
     }
   }
 
   void System::entitiesUnload()
   {
-    entity_templates.clear();
+    entityTemplates.clear();
   }
 
-  size_t System::entityCreate(std::string const& entity_name)
+  size_t System::entityCreate(const std::string &entityName)
   {
-    size_t entity_id = entity_id_generator.getId();
-    std::vector<System *> &entity = entity_registry[entity_id];
-    for(std::string component_name : entity_templates[entity_name])
+    size_t entityId = entityIdManager.getId();
+    std::vector<System *> &entity = entityRegistry[entityId];
+    for(std::string componentName : entityTemplates[entityName])
     {
-      for(System *system : system_registry[component_name])
+      for(System *system : systemRegistry[componentName])
       {
         entity.push_back(system);
-        system->entityAdd(entity_id);
+        system->entityAdd(entityId);
       }
     }
 
-    return entity_id;
+    return entityId;
   }
-  
-  void System::entityDelete(size_t entity_id)
+
+  void System::entityDelete(size_t entityId)
   {
-    for(System *system : entity_registry[entity_id])
+    for(System *system : entityRegistry[entityId])
     {
-      system->entityRemove(entity_id);
+      system->entityRemove(entityId);
     }
-    entity_registry.erase(entity_id);
+    entityRegistry.erase(entityId);
     // TODO Delete all fields associated with entity
   }
 
-  void System::entityLoad(std::string const& file_path)
+  void System::entityLoad(const std::filesystem::path &filePath)
   {
-    std::vector<std::string> fields;
-    std::string entity_name = file_path;
-    boost::split(fields, entity_name, boost::is_any_of("/"));
-    entity_name = fields.back();
-    std::ifstream file(file_path);
-    std::vector<std::string> &entity_template = entity_templates[entity_name];
+    std::ifstream file(filePath);
+    std::vector<std::string> &entityTemplate = entityTemplates[filePath];
     for(std::string line; std::getline(file, line);)
     {
-      entity_template.push_back(line);
+      entityTemplate.push_back(line);
     }
   }
 
-  void System::entityUnload(std::string const& entity_name)
+  void System::entityUnload(const std::string &entityName)
   {
-    entity_templates.erase(entity_name);
+    entityTemplates.erase(entityName);
   }
 
   float System::getTimeDelta()
   {
-    previous_time = current_time;
-    current_time = timer.now();
-    return (float)std::chrono::duration_cast<std::chrono::microseconds>(current_time - previous_time).count() / 1000000.f;
+    previousTime = currentTime;
+    currentTime = timer.now();
+    return (float)std::chrono::duration_cast<std::chrono::microseconds>(currentTime - previousTime).count() / 1000000.f;
   }
 
   void System::selfRegister()
   {
-    system_registry[NAME].push_back(this);
+    systemRegistry[NAME].push_back(this);
   }
 
   void System::timerStart()
   {
-    previous_time = timer.now();
-    current_time = previous_time;
+    previousTime = timer.now();
+    currentTime = previousTime;
   }
 
 }

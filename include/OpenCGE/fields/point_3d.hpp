@@ -1,5 +1,5 @@
-#ifndef INCLUDE_OPENCGE_FIELDS_POINT_3D_HPP_
-#define INCLUDE_OPENCGE_FIELDS_POINT_3D_HPP_
+#ifndef OPENCGE_FIELD_POINT_3D_HPP_
+#define OPENCGE_FIELD_POINT_3D_HPP_
 
 namespace OpenCGE
 {
@@ -16,4 +16,4 @@ namespace OpenCGE
   }
 }
 
-#endif /* INCLUDE_OPENCGE_FIELDS_POINT_3D_HPP_ */
+#endif

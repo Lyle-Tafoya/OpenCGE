@@ -1,5 +1,7 @@
-#ifndef _PHYSICS_HPP
-#define _PHYSICS_HPP
+#ifndef OPENCGE_PHYSICS_HPP_
+#define OPENCGE_PHYSICS_HPP_
+
+#include <nlohmann/json.hpp>
 
 #include <OpenCGE/system.hpp>
 #include <OpenCGE/components/physics.hpp>
@@ -10,12 +12,12 @@ namespace OpenCGE
   {
   public:
     Physics();
-    void entityAdd(size_t entity_id);
-    void entityRemove(size_t entity_id);
-    void positionUpdate(nlohmann::json const& message);
-    void torqueApply(nlohmann::json const& message);
-    void update(nlohmann::json const& message);
-    void velocityApply(nlohmann::json const& message);
+    void entityAdd(size_t entityId);
+    void entityRemove(size_t entityId);
+    void positionUpdate(const nlohmann::json &message);
+    void torqueApply(const nlohmann::json &message);
+    void update(const nlohmann::json &message);
+    void velocityApply(const nlohmann::json &message);
 
   private:
     std::unordered_map<size_t,Component::Physics *> components;

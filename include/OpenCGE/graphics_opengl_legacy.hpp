@@ -5,6 +5,7 @@
 
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
 #include <OpenCGE/system.hpp>
@@ -15,7 +16,7 @@ namespace OpenCGE
   class GraphicsOpenGLLegacy : public System
   {
   public:
-    GraphicsOpenGLLegacy(int windowWidth = 640, int windowHeight = 480, std::string const& windowName = "OpenCGE");
+    GraphicsOpenGLLegacy(glm::ivec2 windowDimensions = glm::ivec2(640, 480), std::string const& windowName = "OpenCGE");
     void entityAdd(size_t entityId);
     void entityRemove(size_t entityId);
     void sceneLoad(const std::filesystem::path &filePath);

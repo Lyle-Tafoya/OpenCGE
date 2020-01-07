@@ -5,18 +5,19 @@
 #include <glm/glm.hpp>
 
 #include <OpenCGE/graphics_opengl_legacy.hpp>
+#include <OpenCGE/glfw_singleton.hpp>
 
 namespace OpenCGE
 {
-  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(int windowWidth, int windowHeight, const std::string &windowName)
+  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(glm::ivec2 windowDimensions, const std::string &windowName)
     : System("graphics_3d")
   {
     callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
     callbackRegister("shutdown", &GraphicsOpenGLLegacy::shutdown, this);
     callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
 
-    glfwInit();
-    window = glfwCreateWindow(windowWidth, windowHeight, windowName.c_str(), NULL, NULL);
+    window = GLFWSingleton::get(windowDimensions, windowName);
+    window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowName.c_str(), NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     int width, height;

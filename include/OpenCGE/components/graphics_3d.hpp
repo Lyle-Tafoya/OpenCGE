@@ -5,20 +5,17 @@
 
 #include <OpenCGE/fields/scene_3d.hpp>
 
-namespace OpenCGE
+namespace OpenCGE::Component
 {
-  namespace Component
+  struct Graphics3D
   {
-    struct Graphics3D
-    {
-      glm::vec3 &orientation;
-      glm::vec3 &position;
-      Field::Scene3D &scene;
+    glm::vec3 &orientation;
+    glm::vec3 &position;
+    Field::Scene3D &scene;
 
-      Graphics3D(glm::vec3 &orientation, glm::vec3 &position, Field::Scene3D &scene)
-        : orientation(orientation), position(position), scene(scene) {}
-    };
-  }
+    Graphics3D(glm::vec3 &orientation, glm::vec3 &position, Field::Scene3D &scene)
+      : orientation(orientation), position(position), scene(scene) {}
+  };
 }
 
 #endif

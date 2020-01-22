@@ -11,12 +11,13 @@ namespace OpenCGE
   class GLFWSingleton
   {
   public:
-    static GLFWwindow *get(const glm::ivec2 &windowDimensions=glm::ivec2(640, 480), const std::string &windowName="")
+    static GLFWwindow *get()
     {
-      if(window != nullptr) { return window; }
-
-      glfwInit();
-      window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowName.c_str(), NULL, NULL);
+      if(window == nullptr)
+      {
+        glfwInit();
+        window = glfwCreateWindow(640, 480, "OpenCGE", NULL, NULL);
+      }
 
       return window;
     }

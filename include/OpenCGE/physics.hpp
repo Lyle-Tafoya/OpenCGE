@@ -20,7 +20,7 @@ namespace OpenCGE
     void velocityApply(const nlohmann::json &message);
 
   private:
-    std::unordered_map<size_t,Component::Physics *> components;
+    std::unordered_map<size_t, Component::Physics *> components;
   };
 }
 

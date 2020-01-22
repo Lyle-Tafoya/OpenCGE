@@ -60,12 +60,12 @@ namespace OpenCGE
   private:
     static std::unordered_map<std::string,std::vector<std::function<void(nlohmann::json const&)>>> callbackRegistry;
     static std::unordered_map<size_t, std::vector<System *>> entityRegistry;
-    static std::unordered_map<std::string,std::vector<std::string>> entityTemplates;
+    static std::unordered_map<std::string, std::vector<std::string>> entityTemplates;
     static std::chrono::high_resolution_clock timer;
     static std::chrono::time_point<std::chrono::system_clock> previousTime;
     static std::chrono::time_point<std::chrono::system_clock> currentTime;
     static ReusableIdManager entityIdManager;
-    static std::unordered_map<std::string,std::vector<System *>> systemRegistry;
+    static std::unordered_map<std::string, System *> systemRegistry;
   };
 }
 

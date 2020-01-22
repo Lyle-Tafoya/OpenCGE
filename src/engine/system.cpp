@@ -13,7 +13,7 @@ namespace OpenCGE
   std::chrono::high_resolution_clock System::timer;
   std::chrono::time_point<std::chrono::system_clock> System::previousTime;
   std::chrono::time_point<std::chrono::system_clock> System::currentTime;
-  std::unordered_map<std::string,std::vector<System *>> System::systemRegistry;
+  std::unordered_map<std::string, System *> System::systemRegistry;
   ReusableIdManager System::entityIdManager;
 
   System::System(const std::string &name)
@@ -32,18 +32,12 @@ namespace OpenCGE
 
   void System::componentCreate(const std::string &componentName, size_t entityId)
   {
-    for(System *system : systemRegistry[componentName])
-    {
-      system->entityAdd(entityId);
-    }
+    systemRegistry[componentName]->entityAdd(entityId);
   }
 
   void System::componentDelete(const std::string &componentName, size_t entityId)
   {
-    for(System *system : systemRegistry[componentName])
-    {
-      system->entityRemove(entityId);
-    }
+    systemRegistry[componentName]->entityRemove(entityId);
   }
 
   void System::entitiesLoad(const std::filesystem::path &directoryPath)
@@ -65,11 +59,9 @@ namespace OpenCGE
     std::vector<System *> &entity = entityRegistry[entityId];
     for(std::string componentName : entityTemplates[entityName])
     {
-      for(System *system : systemRegistry[componentName])
-      {
-        entity.push_back(system);
-        system->entityAdd(entityId);
-      }
+      System *system = systemRegistry[componentName];
+      entity.push_back(system);
+      system->entityAdd(entityId);
     }
 
     return entityId;
@@ -109,7 +101,7 @@ namespace OpenCGE
 
   void System::selfRegister()
   {
-    systemRegistry[NAME].push_back(this);
+    systemRegistry[NAME] = this;
   }
 
   void System::timerStart()

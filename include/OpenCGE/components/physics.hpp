@@ -3,22 +3,19 @@
 
 #include <glm/glm.hpp>
 
-namespace OpenCGE
+namespace OpenCGE::Component
 {
-  namespace Component
+  struct Physics
   {
-    struct Physics
-    {
 
-      glm::vec3 &orientation;
-      glm::vec3 &position;
-      glm::vec3 &torque;
-      glm::vec3 &velocity;
+    glm::vec3 &orientation;
+    glm::vec3 &position;
+    glm::vec3 &torque;
+    glm::vec3 &velocity;
 
-      Physics(glm::vec3 &orientation, glm::vec3 &position, glm::vec3 &torque, glm::vec3 &velocity)
-        : orientation(orientation), position(position), torque(torque), velocity(velocity) {};
-    };
-  }
+    Physics(glm::vec3 &orientation, glm::vec3 &position, glm::vec3 &torque, glm::vec3 &velocity)
+      : orientation(orientation), position(position), torque(torque), velocity(velocity) {};
+  };
 }
 
 

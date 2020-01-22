@@ -16,9 +16,10 @@ namespace OpenCGE
     callbackRegister("shutdown", &GraphicsOpenGLLegacy::shutdown, this);
     callbackRegister("time_passed", &GraphicsOpenGLLegacy::update, this);
 
-    window = GLFWSingleton::get(windowDimensions, windowName);
-    window = glfwCreateWindow(windowDimensions.x, windowDimensions.y, windowName.c_str(), NULL, NULL);
+    window = GLFWSingleton::get();
     glfwMakeContextCurrent(window);
+    glfwSetWindowSize(window, windowDimensions.x, windowDimensions.y);
+    glfwSetWindowTitle(window, windowName.c_str());
     glfwSwapInterval(1);
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);

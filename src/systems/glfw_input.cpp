@@ -31,7 +31,9 @@ namespace OpenCGE
   void GLFWInput::glfwCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
   {
     auto *inputSystem = static_cast<GLFWInput *>(glfwGetWindowUserPointer(window));
-    inputSystem->keyboardActions[key]();
+    auto keyboardAction = inputSystem->keyboardActions.find(key);
+    if(keyboardAction == inputSystem->keyboardActions.end()) { return; }
+    keyboardAction->second();
   }
 
   GLFWInput::GLFWInput() : System("input")

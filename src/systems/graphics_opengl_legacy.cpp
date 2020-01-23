@@ -9,8 +9,7 @@
 
 namespace OpenCGE
 {
-  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(glm::ivec2 windowDimensions, const std::string &windowName)
-    : System("graphics_3d")
+  GraphicsOpenGLLegacy::GraphicsOpenGLLegacy(glm::ivec2 windowDimensions, const std::string &windowName) : System("graphics_3d")
   {
     callbackRegister("scene_update", &GraphicsOpenGLLegacy::sceneUpdate, this);
     callbackRegister("shutdown", &GraphicsOpenGLLegacy::shutdown, this);
@@ -20,7 +19,7 @@ namespace OpenCGE
     glfwMakeContextCurrent(window);
     glfwSetWindowSize(window, windowDimensions.x, windowDimensions.y);
     glfwSetWindowTitle(window, windowName.c_str());
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glClearColor(0.f, 0.f, 0.f, 0.f);
@@ -95,8 +94,12 @@ namespace OpenCGE
   void GraphicsOpenGLLegacy::update(const nlohmann::json &)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    size_t seed = 0;
     for(auto entity : components)
     {
+      srand(seed++);
+      float color = (double)rand()/RAND_MAX;
+      glColor3f(color, color, color);
       Component::Graphics3D &component = *entity.second;
       glPushMatrix();
       glTranslatef(component.position.x, component.position.y, component.position.z);
@@ -104,16 +107,18 @@ namespace OpenCGE
       glRotatef(component.orientation.y, 0, 1, 0);
       glRotatef(component.orientation.z, 0, 0, 1);
 
-      for(std::vector<glm::vec3> mesh : component.scene.meshes)
+      glBegin(GL_TRIANGLES);
+      for(const std::vector<glm::vec3> &mesh : component.scene.meshes)
       {
-        glBegin(GL_TRIANGLES);
-        for(glm::vec3 vertice : mesh)
+        size_t mesh_size = mesh.size();
+        for(size_t i = 0; i < mesh_size; i += 3)
         {
-          glColor3f(0.5f, 0.5f, 0.5f);
-          glVertex3f(vertice.x, vertice.y, vertice.z);
+          glVertex3f(mesh[i].x, mesh[i].y, mesh[i].z);
+          glVertex3f(mesh[i+1].x, mesh[i+1].y, mesh[i+1].z);
+          glVertex3f(mesh[i+2].x, mesh[i+2].y, mesh[i+2].z);
         }
-        glEnd();
       }
+      glEnd();
       glPopMatrix();
     }
     glfwSwapBuffers(window);

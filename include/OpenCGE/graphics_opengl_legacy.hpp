@@ -20,14 +20,15 @@ namespace OpenCGE
     void entityAdd(size_t entityId);
     void entityRemove(size_t entityId);
     void sceneLoad(const std::filesystem::path &filePath);
-    void scenesLoad(const std::filesystem::path &directoryPath);
     void sceneUpdate(const nlohmann::json &message);
     void shutdown(const nlohmann::json &message);
     void update(const nlohmann::json &message);
     void windowResize(int width, int height);
 
   private:
+    GLuint generateDisplayList(const std::vector<glm::vec3> &mesh);
     std::unordered_map<size_t, Component::Graphics3D *> components;
+    std::vector<GLuint> entityToDisplayList;
     GLFWwindow *window;
     std::unordered_map<std::string, Field::Scene3D> sceneTemplates;
   };

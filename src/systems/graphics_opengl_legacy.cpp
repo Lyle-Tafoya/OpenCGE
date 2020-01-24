@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <iostream>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -31,6 +32,7 @@ namespace OpenCGE
   void GraphicsOpenGLLegacy::entityAdd(size_t entityId)
   {
     Entity &entity = entities[entityId];
+    if(entityToDisplayList.size() <= entityId) { entityToDisplayList.resize(entityId+1); }
 
     auto *orientation = ensureFieldExists<glm::vec3>(entity, "orientation");
     auto *position = ensureFieldExists<glm::vec3>(entity, "position");
@@ -56,69 +58,72 @@ namespace OpenCGE
     gluLookAt(0.f, 0.f, 5.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
   }
 
+  GLuint GraphicsOpenGLLegacy::generateDisplayList(const std::vector<glm::vec3> &mesh)
+  {
+    GLuint index = glGenLists(1);
+    glNewList(index, GL_COMPILE);
+      glBegin(GL_TRIANGLES);
+        size_t numVertices = mesh.size();
+        for(size_t v = 0; v < numVertices; v += 3)
+        {
+          glVertex3f(mesh[v].x, mesh[v].y, mesh[v].z);
+          glVertex3f(mesh[v+1].x, mesh[v+1].y, mesh[v+1].z);
+          glVertex3f(mesh[v+2].x, mesh[v+2].y, mesh[v+2].z);
+        }
+      glEnd();
+    glEndList();
+
+    return index;
+  }
+
   void GraphicsOpenGLLegacy::sceneLoad(const std::filesystem::path &filePath)
   {
-
     std::vector<std::string> fields;
-    Assimp::Importer importer;
-    unsigned int flags = aiProcess_CalcTangentSpace|aiProcess_Triangulate|aiProcess_SortByPType;
+    static Assimp::Importer importer;
+    unsigned int flags = aiProcess_Triangulate|aiProcess_SortByPType;
     const aiScene *ai_scene = importer.ReadFile(filePath, flags);
-    // TODO Store meshes in vertex buffer arrays
     for(size_t mesh_num = 0; mesh_num < ai_scene->mNumMeshes; ++mesh_num)
     {
       aiMesh &mesh = *ai_scene->mMeshes[mesh_num];
       std::vector<glm::vec3> vertices;
-      for(size_t vertice_num = 0; vertice_num < mesh.mNumVertices; ++vertice_num)
+      for(size_t faceNum = 0; faceNum < mesh.mNumFaces; ++faceNum)
       {
-        aiVector3D &vertice = mesh.mVertices[vertice_num];
-        vertices.push_back(glm::vec3(vertice.x, vertice.y, vertice.z));
+        aiFace face = mesh.mFaces[faceNum];
+        aiVector3D &vertex = mesh.mVertices[face.mIndices[0]];
+        vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
+        vertex = mesh.mVertices[face.mIndices[1]];
+        vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
+        vertex = mesh.mVertices[face.mIndices[2]];
+        vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
       }
       sceneTemplates[filePath].meshes.push_back(vertices);
-    }
-  }
-
-  void GraphicsOpenGLLegacy::scenesLoad(const std::filesystem::path &directoryPath)
-  {
-    for(auto &directoryEntry : std::filesystem::directory_iterator(directoryPath))
-    {
-      GraphicsOpenGLLegacy::sceneLoad(directoryEntry.path());
+      sceneTemplates[filePath].displayListIndex = generateDisplayList(vertices);
     }
   }
 
   void GraphicsOpenGLLegacy::sceneUpdate(const nlohmann::json &message)
   {
     size_t entityId = message["entity_id"].get<size_t>();
-    components[entityId]->scene = sceneTemplates[message["scene_name"]];
+    const std::string &sceneName = message["scene_name"];
+    components[entityId]->scene = sceneTemplates[sceneName];
+    entityToDisplayList[entityId] = sceneTemplates[sceneName].displayListIndex;
   }
 
   void GraphicsOpenGLLegacy::update(const nlohmann::json &)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     size_t seed = 0;
-    for(auto entity : components)
+    for(size_t entityId=0; entityId < components.size(); ++entityId)
     {
-      srand(seed++);
-      float color = (double)rand()/RAND_MAX;
-      glColor3f(color, color, color);
-      Component::Graphics3D &component = *entity.second;
+      Component::Graphics3D &component = *components[entityId];
+      glColor3f(0.5f, 0.5f, 0.5f);
       glPushMatrix();
-      glTranslatef(component.position.x, component.position.y, component.position.z);
-      glRotatef(component.orientation.x, 1, 0, 0);
-      glRotatef(component.orientation.y, 0, 1, 0);
-      glRotatef(component.orientation.z, 0, 0, 1);
+        glTranslatef(component.position.x, component.position.y, component.position.z);
+        glRotatef(component.orientation.x, 1, 0, 0);
+        glRotatef(component.orientation.y, 0, 1, 0);
+        glRotatef(component.orientation.z, 0, 0, 1);
 
-      glBegin(GL_TRIANGLES);
-      for(const std::vector<glm::vec3> &mesh : component.scene.meshes)
-      {
-        size_t mesh_size = mesh.size();
-        for(size_t i = 0; i < mesh_size; i += 3)
-        {
-          glVertex3f(mesh[i].x, mesh[i].y, mesh[i].z);
-          glVertex3f(mesh[i+1].x, mesh[i+1].y, mesh[i+1].z);
-          glVertex3f(mesh[i+2].x, mesh[i+2].y, mesh[i+2].z);
-        }
-      }
-      glEnd();
+        glCallList(entityToDisplayList[entityId]);
       glPopMatrix();
     }
     glfwSwapBuffers(window);

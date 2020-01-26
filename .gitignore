@@ -1,35 +1,8 @@
-# Eclipse project files
-.cproject
-.project
-.settings
-nbproject
-
 # Binary folders
-Debug/
-Release/
-Default/
+lib/
 
 # Vim files
 *.swp
 
 # Compiler files and related
 *.o
-/_Debug/
-/_Release/
-/build/
-/dist/
-/EntityHandler Debug/
-/Physics System Debug/
-/OpenGL Legacy System Debug/
-/EntityHandler Release/
-/OpenGL Legacy System Release/
-/Physics System Release/
-/lib/
-/opencge-system/
-/opencge-system-debug/
-/opencge-physics-debug/
-/opencge-opengl-legacy-debug/
-/opencge-ncurses-debug/
-/opencge-physics/
-/opencge-ncurses/
-/opencge-opengl-legacy/

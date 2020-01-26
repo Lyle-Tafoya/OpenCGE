@@ -1,12 +1,6 @@
 ## Description
 
-OpenCGE is a 3D game engine using component-based design with event-based messaging. It is programmed in C++11. The primary goals of this project are as follows:
-
-* Game development solution which places a priority on SteamOS/Linux support
-* Modular design
-* Vulkan API support
-* Virtual reality support
-* Easy Steam integration
+OpenCGE is a 3D game engine using component-based design with event-based messaging. It is programmed in C++17.
 
 ## Current State
 
@@ -20,7 +14,7 @@ OpenCGE is modular by design and you will need different dependencies installed 
 
 **opencge-system**
 
-* Boost
+* nlohmann/json
 
 ### Modules
 
@@ -28,8 +22,9 @@ OpenCGE is modular by design and you will need different dependencies installed 
 
 * GLFW
 * Assimp
+* GLM
 
 **opencge-physics**
 
-* No additional dependencies
+* GLM
 

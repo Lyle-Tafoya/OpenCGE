@@ -12,9 +12,6 @@ namespace OpenCGE::Component
     glm::vec3 &orientation;
     glm::vec3 &position;
     Field::Scene3D &scene;
-
-    Graphics3D(glm::vec3 &orientation, glm::vec3 &position, Field::Scene3D &scene)
-      : orientation(orientation), position(position), scene(scene) {}
   };
 }
 

@@ -1,9 +1,11 @@
-#include <filesystem>
 #include <iostream>
+#include <filesystem>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <glm/glm.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #include <OpenCGE/graphics_opengl_legacy.hpp>
 #include <OpenCGE/glfw_singleton.hpp>
@@ -24,9 +26,31 @@ namespace OpenCGE
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glClearColor(0.f, 0.f, 0.f, 0.f);
+    glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     windowResize(width, height);
+
+    // Generate default texture
+    for(size_t y=0; y < 64; ++y)
+    {
+      for(size_t x=0; x < 64; ++x)
+      {
+        unsigned char c = (((y & 0x8)==0) ^ ((x & 0x8) == 0)) * 255;
+        textureMissing[y][x][0] = c;
+        textureMissing[y][x][1] = 0;
+        textureMissing[y][x][2] = c;
+        textureMissing[y][x][3] = 255;
+      }
+    }
+    glGenTextures(1, &textureMissingIndex);
+    glBindTexture(GL_TEXTURE_2D, textureMissingIndex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64, 64, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureMissing);
   }
 
   void GraphicsOpenGLLegacy::entityAdd(size_t entityId)
@@ -38,7 +62,7 @@ namespace OpenCGE
     auto *position = ensureFieldExists<glm::vec3>(entity, "position");
     auto *scene = ensureFieldExists<Field::Scene3D>(entity, "scene_3d");
 
-    components[entityId] = new Component::Graphics3D(*orientation, *position, *scene);
+    components[entityId] = new Component::Graphics3D{*orientation, *position, *scene};
   }
 
   void GraphicsOpenGLLegacy::entityRemove(size_t entityId)
@@ -58,17 +82,30 @@ namespace OpenCGE
     gluLookAt(0.f, 0.f, 5.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
   }
 
-  GLuint GraphicsOpenGLLegacy::generateDisplayList(const std::vector<glm::vec3> &mesh)
+  GLuint GraphicsOpenGLLegacy::generateDisplayList(const Field::Scene3D::Model &model, GLuint textureIndex)
   {
     GLuint index = glGenLists(1);
     glNewList(index, GL_COMPILE);
+      glBindTexture(GL_TEXTURE_2D, textureIndex);
       glBegin(GL_TRIANGLES);
-        size_t numVertices = mesh.size();
-        for(size_t v = 0; v < numVertices; v += 3)
+        size_t numVertices = model.mesh.size();
+        bool hasTexture = (model.textureCoordinates.size() > 0);
+        for(size_t v = 0; v < numVertices; ++v)
         {
-          glVertex3f(mesh[v].x, mesh[v].y, mesh[v].z);
-          glVertex3f(mesh[v+1].x, mesh[v+1].y, mesh[v+1].z);
-          glVertex3f(mesh[v+2].x, mesh[v+2].y, mesh[v+2].z);
+          if(hasTexture)
+          {
+            glTexCoord3f(model.textureCoordinates[v].x, model.textureCoordinates[v].y, model.textureCoordinates[v].z);
+          }
+          else
+          {
+            switch(v%3)
+            {
+              case 0: glTexCoord2f(0.f, 0.f); break;
+              case 1: glTexCoord2f(1.f, 0.f); break;
+              case 2: glTexCoord2f(1.f, 1.f); break;
+            }
+          }
+          glVertex3f(model.mesh[v].x, model.mesh[v].y, model.mesh[v].z);
         }
       glEnd();
     glEndList();
@@ -82,22 +119,78 @@ namespace OpenCGE
     static Assimp::Importer importer;
     unsigned int flags = aiProcess_Triangulate|aiProcess_SortByPType;
     const aiScene *ai_scene = importer.ReadFile(filePath, flags);
-    for(size_t mesh_num = 0; mesh_num < ai_scene->mNumMeshes; ++mesh_num)
+
+    Field::Scene3D &sceneTemplate = sceneTemplates[filePath];
+    for(size_t meshNum = 0; meshNum < ai_scene->mNumMeshes; ++meshNum)
     {
-      aiMesh &mesh = *ai_scene->mMeshes[mesh_num];
-      std::vector<glm::vec3> vertices;
+      // Extract vertice data
+      sceneTemplate.models.emplace_back();
+      Field::Scene3D::Model &model = sceneTemplate.models.back();
+      aiMesh &mesh = *ai_scene->mMeshes[meshNum];
+      std::vector<glm::vec3> textureCoordinates;
+      bool hasTextureCoords = mesh.mTextureCoords[0];
       for(size_t faceNum = 0; faceNum < mesh.mNumFaces; ++faceNum)
       {
-        aiFace face = mesh.mFaces[faceNum];
-        aiVector3D &vertex = mesh.mVertices[face.mIndices[0]];
-        vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
-        vertex = mesh.mVertices[face.mIndices[1]];
-        vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
-        vertex = mesh.mVertices[face.mIndices[2]];
-        vertices.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
+        const aiFace &face = mesh.mFaces[faceNum];
+        for(size_t i = 0; i < face.mNumIndices; ++i)
+        {
+          unsigned int index = face.mIndices[i];
+          const aiVector3D &vertex = mesh.mVertices[index];
+          model.mesh.emplace_back(vertex.x, vertex.y, vertex.z);
+          if(hasTextureCoords)
+          {
+            aiVector3D &coords = mesh.mTextureCoords[0][index];
+            model.textureCoordinates.emplace_back(coords.x, 1.f-coords.y, coords.z);
+          }
+        }
       }
-      sceneTemplates[filePath].meshes.push_back(vertices);
-      sceneTemplates[filePath].displayListIndex = generateDisplayList(vertices);
+
+      // Extract texture data
+      GLuint textureIndex;
+      if(meshNum < ai_scene->mNumTextures)
+      {
+        model.texture.width = ai_scene->mTextures[meshNum]->mWidth;
+        model.texture.height = ai_scene->mTextures[meshNum]->mHeight;
+        if(model.texture.height == 0) // compressed
+        {
+          int width, height, channels;
+          unsigned char *imageData = reinterpret_cast<unsigned char *>(ai_scene->mTextures[meshNum]->pcData);
+          model.texture.data = stbi_load_from_memory(imageData, model.texture.width, &width, &height, &channels, 0);
+          model.texture.width = width;
+          model.texture.height = height;
+          model.texture.numChannels = channels;
+        }
+        else // uncompressed
+        {
+          model.texture.numChannels = 4;
+          model.texture.data = new GLubyte[model.texture.height*model.texture.width*4];
+          for(size_t y=0; y < model.texture.height; ++y)
+          {
+            for(size_t x=0; x < model.texture.width; ++x)
+            {
+              model.texture.data[model.texture.width*y*4+x*4] = ai_scene->mTextures[meshNum]->pcData->r;
+              model.texture.data[model.texture.width*y*4+x*4+1] = ai_scene->mTextures[meshNum]->pcData->g;
+              model.texture.data[model.texture.width*y*4+x*4+2] = ai_scene->mTextures[meshNum]->pcData->b;
+              model.texture.data[model.texture.width*y*4+x*4+3] = ai_scene->mTextures[meshNum]->pcData->a;
+            }
+          }
+        }
+        glGenTextures(1, &textureIndex);
+        glBindTexture(GL_TEXTURE_2D, textureIndex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, model.texture.width, model.texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, model.texture.data);
+        glData[filePath].textures.emplace_back(textureIndex);
+      }
+      else // No data to extract
+      {
+        glData[filePath].textures.emplace_back(textureMissingIndex);
+        textureIndex = textureMissingIndex;
+      }
+
+      glData[filePath].displayLists.emplace_back(generateDisplayList(model, textureIndex));
     }
   }
 
@@ -106,17 +199,18 @@ namespace OpenCGE
     size_t entityId = message["entity_id"].get<size_t>();
     const std::string &sceneName = message["scene_name"];
     components[entityId]->scene = sceneTemplates[sceneName];
-    entityToDisplayList[entityId] = sceneTemplates[sceneName].displayListIndex;
+    entityToDisplayList[entityId] = glData[sceneName].displayLists[0];
   }
 
   void GraphicsOpenGLLegacy::update(const nlohmann::json &)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    size_t seed = 0;
-    for(size_t entityId=0; entityId < components.size(); ++entityId)
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    size_t numComponents = components.size();
+    for(size_t entityId=0; entityId < numComponents; ++entityId)
     {
       Component::Graphics3D &component = *components[entityId];
-      glColor3f(0.5f, 0.5f, 0.5f);
       glPushMatrix();
         glTranslatef(component.position.x, component.position.y, component.position.z);
         glRotatef(component.orientation.x, 1, 0, 0);
@@ -127,6 +221,7 @@ namespace OpenCGE
       glPopMatrix();
     }
     glfwSwapBuffers(window);
+    glDisable(GL_TEXTURE_2D);
   }
 
   void GraphicsOpenGLLegacy::shutdown(const nlohmann::json &)

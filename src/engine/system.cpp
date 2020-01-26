@@ -96,7 +96,7 @@ namespace OpenCGE
   {
     previousTime = currentTime;
     currentTime = timer.now();
-    return (float)std::chrono::duration_cast<std::chrono::microseconds>(currentTime - previousTime).count() / 1000000.f;
+    return std::chrono::duration_cast<std::chrono::microseconds>(currentTime - previousTime).count() / 1000000.f;
   }
 
   void System::selfRegister()
